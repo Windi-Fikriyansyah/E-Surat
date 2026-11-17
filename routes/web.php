@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SuratMasukController;
+use App\Http\Controllers\SuratController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,16 +29,24 @@ Route::middleware('auth')->group(function () {
         Route::post('/{user}/reset-password', [UserController::class, 'resetPassword'])->name('reset-password');
     });
 
-    // Menu Surat Masuk
-    Route::prefix('surat-masuk')->name('surat-masuk.')->group(function () {
-        Route::get('/', [SuratMasukController::class, 'index'])->name('index');
-        Route::post('/data', [SuratMasukController::class, 'data'])->name('data');
-        Route::post('/', [SuratMasukController::class, 'store'])->name('store');
-        Route::get('/{id}', [SuratMasukController::class, 'show'])->name('show');
-        Route::post('/{id}/update', [SuratMasukController::class, 'update'])->name('update');
-        Route::delete('/{id}', [SuratMasukController::class, 'destroy'])->name('destroy');
-        Route::get('/{id}/preview', [SuratMasukController::class, 'preview'])->name('preview');
-        Route::get('/{id}/download', [SuratMasukController::class, 'download'])->name('download');
+    // Menu Surat (Surat Masuk & Surat Keluar)
+    Route::prefix('surat')->name('surat.')->group(function () {
+        Route::get('/', [SuratController::class, 'index'])->name('index');
+        Route::post('/data', [SuratController::class, 'data'])->name('data');
+        Route::post('/', [SuratController::class, 'store'])->name('store');
+        Route::get('/{id}', [SuratController::class, 'show'])->name('show');
+        Route::post('/{id}/update', [SuratController::class, 'update'])->name('update');
+        Route::delete('/{id}', [SuratController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}/preview', [SuratController::class, 'preview'])->name('preview');
+        Route::get('/{id}/download', [SuratController::class, 'download'])->name('download');
+    });
+
+    // Alias / redirect untuk kemudahan navigasi
+    Route::get('/surat-masuk', function () {
+        return redirect()->route('surat.index', ['jenis' => 'Masuk']);
+    });
+    Route::get('/surat-keluar', function () {
+        return redirect()->route('surat.index', ['jenis' => 'Keluar']);
     });
 });
 

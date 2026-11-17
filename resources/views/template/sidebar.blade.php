@@ -50,13 +50,14 @@
                     </a>
                 </li>
 
-                <li class="sidebar-item {{ request()->routeIs('surat-masuk.*') ? 'active' : '' }}">
-                    <a href="{{ route('surat-masuk.index') }}" class='sidebar-link'>
+                <li class="sidebar-item {{ request()->routeIs('surat.*') && request('jenis') !== 'Keluar' ? 'active' : '' }}">
+                    <a href="{{ route('surat.index', ['jenis' => 'Masuk']) }}" class='sidebar-link'>
                         <i class="bi bi-envelope-arrow-down-fill"></i>
                         <span>Surat Masuk</span>
                     </a>
                 </li>
 
+                
                 @if (Auth::user() && Auth::user()->role === 'Admin')
                 <li class="sidebar-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
                     <a href="{{ route('users.index') }}" class='sidebar-link'>
