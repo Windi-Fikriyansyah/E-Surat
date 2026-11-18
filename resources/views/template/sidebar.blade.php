@@ -65,11 +65,18 @@
                 </li>
 
                 
-                @if (Auth::user() && Auth::user()->role === 'Admin')
+                @if (Auth::user() && (Auth::user()->role === 'Admin' || (method_exists(Auth::user(), 'hasRole') && Auth::user()->hasRole('Admin'))))
                 <li class="sidebar-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
                     <a href="{{ route('users.index') }}" class='sidebar-link'>
                         <i class="bi bi-people-fill"></i>
                         <span>Manajemen Pengguna</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item {{ request()->routeIs('roles.*') ? 'active' : '' }}">
+                    <a href="{{ route('roles.index') }}" class='sidebar-link'>
+                        <i class="bi bi-shield-lock-fill"></i>
+                        <span>Manajemen Role</span>
                     </a>
                 </li>
                 @endif

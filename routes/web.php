@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SuratController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,16 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
         Route::post('/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
         Route::post('/{user}/reset-password', [UserController::class, 'resetPassword'])->name('reset-password');
+    });
+
+    // Manajemen Role & Hak Akses (Admin)
+    Route::prefix('roles')->name('roles.')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->name('index');
+        Route::post('/data', [RoleController::class, 'data'])->name('data');
+        Route::post('/', [RoleController::class, 'store'])->name('store');
+        Route::get('/{id}', [RoleController::class, 'show'])->name('show');
+        Route::put('/{id}', [RoleController::class, 'update'])->name('update');
+        Route::delete('/{id}', [RoleController::class, 'destroy'])->name('destroy');
     });
 
     // Menu Surat (Surat Masuk & Surat Keluar)
