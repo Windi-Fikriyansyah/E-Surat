@@ -613,7 +613,7 @@
                     <i class="bi bi-check-circle fs-4 me-2"></i>
                     <div>
                         <strong>Dokumen Resmi Berhasil Dibuat:</strong><br>
-                        Surat resmi telah dibuat otomatis ber-kop SMK Negeri 1 Sadaniang lengkap dengan tanda tangan & stempel Kepala Sekolah, serta langsung tersimpan ke sistem arsip surat.
+                        Surat resmi telah dibuat otomatis ber-kop SMK Negeri 1 Sadaniang lengkap dengan format cetak resmi Kepala Sekolah, serta langsung tersimpan ke sistem arsip surat.
                     </div>
                 </div>
 
@@ -646,28 +646,72 @@
 <!-- ========================================== -->
 <!-- OFFSCREEN TEMPLATE SURAT UNTUK HTML2CANVAS -->
 <!-- ========================================== -->
-<div id="suratOffscreenWrapper" style="position: absolute; left: -9999px; top: 0; width: 794px; z-index: -9999; background: #ffffff;">
-    <div id="suratRenderElement" style="width: 794px; min-height: 1123px; padding: 48px 65px; background: #ffffff; font-family: Arial, Helvetica, sans-serif; color: #000; font-size: 13.5px; line-height: 1.5; box-sizing: border-box;">
+<style>
+    #suratRenderElement,
+    #suratRenderElement * {
+        font-family: "Times New Roman", Times, serif !important;
+        color: #000000 !important;
+        box-sizing: border-box !important;
+    }
+    #suratRenderElement h1,
+    #suratRenderElement h2,
+    #suratRenderElement h3,
+    #suratRenderElement h4,
+    #suratRenderElement h5,
+    #suratRenderElement h6,
+    #suratRenderElement p,
+    #suratRenderElement span,
+    #suratRenderElement td,
+    #suratRenderElement strong,
+    #suratRenderElement a {
+        font-family: "Times New Roman", Times, serif !important;
+        color: #000000 !important;
+    }
+    #suratRenderElement h4 {
+        margin: 0 !important;
+        font-size: 14.5px !important;
+        font-weight: normal !important;
+        letter-spacing: 0.5px !important;
+        text-transform: uppercase !important;
+        line-height: 1.1 !important;
+    }
+    #suratRenderElement h2 {
+        margin: 1px 0 2px 0 !important;
+        font-size: 19.5px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.8px !important;
+        text-transform: uppercase !important;
+        line-height: 1.1 !important;
+    }
+    #suratRenderElement p {
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 12px !important;
+        line-height: 1.15 !important;
+    }
+</style>
+<div id="suratOffscreenWrapper" style="position: absolute; left: -9999px; top: 0; width: 210mm; z-index: -9999; background: #ffffff;">
+    <div id="suratRenderElement" style="width: 210mm; min-height: 297mm; padding: 16mm 22mm 20mm 22mm; background: #ffffff; font-family: 'Times New Roman', Times, serif !important; color: #000000 !important; font-size: 12pt; line-height: 1.5; box-sizing: border-box; position: relative;">
         <!-- KOP SURAT -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 2px;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 4px;">
             <tr>
                 <td style="width: 80px; text-align: left; vertical-align: middle;">
-                    <img src="{{ asset('assets/surat/logo_kalbar.png') }}" style="width: 76px; height: auto; display: block;" alt="Logo Kalbar">
+                    <img src="{{ asset('assets/surat/logo_kalbar.png') }}" style="width: 78px; height: auto; display: block;" alt="Logo Pemprov Kalbar">
                 </td>
-                <td style="text-align: center; vertical-align: middle; padding: 0 10px;">
-                    <h4 style="margin: 0; font-size: 14.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">PEMERINTAH PROVINSI KALIMANTAN BARAT</h4>
-                    <h2 style="margin: 3px 0 4px 0; font-size: 19.5px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;">SMK NEGERI 1 SADANIANG</h2>
-                    <p style="margin: 0; font-size: 12px; line-height: 1.4;">Jalan Raya Pudak, Provinsi Kalimantan Barat, Kode Pos 78361</p>
-                    <p style="margin: 0; font-size: 12px; line-height: 1.4;">Hp. 081348969697, Website: <span style="text-decoration: underline; color: #0056b3;">http://www.smkn1sadaniang.sch.id</span></p>
+                <td style="text-align: center; padding: 0 10px; vertical-align: middle;">
+                    <h4 style="margin: 0 !important; font-size: 14.5px !important; font-weight: normal !important; letter-spacing: 0.5px !important; text-transform: uppercase !important; line-height: 1.1 !important; color: #000000 !important; font-family: 'Times New Roman', Times, serif !important;">PEMERINTAH PROVINSI KALIMANTAN BARAT</h4>
+                    <h2 style="margin: 1px 0 2px 0 !important; font-size: 19.5px !important; font-weight: 800 !important; letter-spacing: 0.8px !important; text-transform: uppercase !important; line-height: 1.1 !important; color: #000000 !important; font-family: 'Times New Roman', Times, serif !important;">SMK NEGERI 1 SADANIANG</h2>
+                    <p style="margin: 0 !important; padding: 0 !important; font-size: 12px !important; line-height: 1.15 !important; color: #000000 !important; font-family: 'Times New Roman', Times, serif !important;">Jalan Raya Pudak, Provinsi Kalimantan Barat, Kode Pos 78361</p>
+                    <p style="margin: 0 !important; padding: 0 !important; font-size: 12px !important; line-height: 1.15 !important; color: #000000 !important; font-family: 'Times New Roman', Times, serif !important;">Hp. 081348969697, Website: <span style="text-decoration: underline !important; color: #000000 !important; font-family: 'Times New Roman', Times, serif !important;">http://www.smkn1sadaniang.sch.id</span></p>
                 </td>
-                <td style="width: 80px; text-align: right; vertical-align: middle;">
-                    <img src="{{ asset('assets/surat/logo_smk.png') }}" style="width: 76px; height: auto; display: block;" alt="Logo SMK">
+                <td style="width: 100px; height: auto; text-align: right; vertical-align: middle;">
+                    <img src="{{ asset('assets/surat/logo_smk.png') }}" style="width: 95px; height: auto; display: block; margin-left: auto;" alt="Logo SMK">
                 </td>
             </tr>
         </table>
         
         <!-- GARIS GANDA KOP -->
-        <div style="border-top: 3.5px solid #000; border-bottom: 1.2px solid #000; height: 2px; margin: 6px 0 16px 0;"></div>
+        <div style="border-top: 3.5px solid #000000; border-bottom: 1.2px solid #000000; height: 2px; margin: 6px 0 18px 0;"></div>
 
         <!-- TANGGAL SURAT -->
         <div id="render_surat_tanggal" style="text-align: right; margin-bottom: 16px; font-size: 13.5px;">
@@ -692,7 +736,7 @@
         <div style="margin-bottom: 20px; line-height: 1.5; font-size: 13.5px;">
             Kepada Yth.<br>
             <strong id="render_surat_penerima">Bapak/Ibu Dewan Guru</strong><br>
-            <span id="render_surat_tujuan">SMK Negeri 1 Sadaniang</span><br>
+            <span id="render_surat_tujuan_wrapper"><span id="render_surat_tujuan">SMK Negeri 1 Sadaniang</span><br></span>
             di Tempat
         </div>
 
@@ -702,47 +746,47 @@
         </div>
 
         <!-- ISI SURAT / PENGANTAR -->
-        <div id="render_surat_isi" style="text-align: justify; text-justify: inter-word; line-height: 1.6; margin-bottom: 12px; font-size: 13.5px;">
+        <div id="render_surat_isi" style="text-align: justify; text-justify: inter-word; line-height: 1.6; margin-bottom: 16px; font-size: 13.5px;">
             Sehubungan dengan akan dilaksanakannya kegiatan...
         </div>
 
         <!-- RINCIAN KEGIATAN -->
-        <table id="render_surat_rincian" style="margin: 8px 0 14px 20px; border-collapse: collapse; font-size: 13.5px;">
+        <table id="render_surat_rincian" style="margin: 12px 0 16px 20px; border-collapse: collapse; font-size: 13.5px;">
             <tr id="render_row_hari_tanggal">
-                <td style="width: 120px; vertical-align: top; padding: 2px 0;">Hari/Tanggal</td>
-                <td style="width: 15px; vertical-align: top; padding: 2px 0;">:</td>
-                <td style="vertical-align: top; padding: 2px 0;"><strong id="render_surat_hari_tanggal">Kamis, 12 November 2026</strong></td>
+                <td style="width: 120px; vertical-align: top; padding: 3px 6px 3px 0;">Hari/Tanggal</td>
+                <td style="width: 15px; vertical-align: top; padding: 3px 6px 3px 0;">:</td>
+                <td style="vertical-align: top; padding: 3px 6px 3px 0;"><strong id="render_surat_hari_tanggal">Kamis, 12 November 2026</strong></td>
             </tr>
             <tr id="render_row_waktu">
-                <td style="vertical-align: top; padding: 2px 0;">Waktu</td>
-                <td style="vertical-align: top; padding: 2px 0;">:</td>
-                <td style="vertical-align: top; padding: 2px 0;" id="render_surat_waktu">Pukul 09.00 WIB s.d. selesai</td>
+                <td style="vertical-align: top; padding: 3px 6px 3px 0;">Waktu</td>
+                <td style="vertical-align: top; padding: 3px 6px 3px 0;">:</td>
+                <td style="vertical-align: top; padding: 3px 6px 3px 0;" id="render_surat_waktu">Pukul 09.00 WIB s.d. selesai</td>
             </tr>
             <tr id="render_row_tempat">
-                <td style="vertical-align: top; padding: 2px 0;">Tempat</td>
-                <td style="vertical-align: top; padding: 2px 0;">:</td>
-                <td style="vertical-align: top; padding: 2px 0;" id="render_surat_tempat">Ruang Guru SMK Negeri 1 Sadaniang</td>
+                <td style="vertical-align: top; padding: 3px 6px 3px 0;">Tempat</td>
+                <td style="vertical-align: top; padding: 3px 6px 3px 0;">:</td>
+                <td style="vertical-align: top; padding: 3px 6px 3px 0;" id="render_surat_tempat">Ruang Guru SMK Negeri 1 Sadaniang</td>
             </tr>
             <tr id="render_row_agenda">
-                <td style="vertical-align: top; padding: 2px 0;">Agenda</td>
-                <td style="vertical-align: top; padding: 2px 0;">:</td>
-                <td style="vertical-align: top; padding: 2px 0;" id="render_surat_agenda">Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.</td>
+                <td style="vertical-align: top; padding: 3px 6px 3px 0;">Agenda</td>
+                <td style="vertical-align: top; padding: 3px 6px 3px 0;">:</td>
+                <td style="vertical-align: top; padding: 3px 6px 3px 0;" id="render_surat_agenda">Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.</td>
             </tr>
         </table>
 
         <!-- PARAGRAF PENEGASAN & PENUTUP -->
         <div id="render_surat_penutup" style="text-align: justify; line-height: 1.6; margin-bottom: 24px; font-size: 13.5px;">
-            Mengingat pentingnya agenda rapat tersebut, kami mengharapkan kehadiran Bapak/Ibu tepat pada waktunya agar seluruh persiapan pelaksanaan dapat dibahas dan dikoordinasikan dengan baik.
+            Mengingat pentingnya agenda tersebut, kami mengharapkan kehadiran Bapak/Ibu tepat pada waktunya agar seluruh rangkaian kegiatan dapat dikoordinasikan dan berjalan dengan baik.
             <br><br>
-            Demikian surat ini kami sampaikan. Atas perhatian dan kehadiran Bapak/Ibu, kami mengucapkan terima kasih.
+            Demikian surat ini kami sampaikan. Atas perhatian, kehadiran, dan kerja samanya, kami mengucapkan terima kasih.
         </div>
 
-        <!-- TANDA TANGAN & STEMPEL -->
-        <div style="width: 100%; margin-top: 25px;">
+        <!-- TANDA TANGAN (TANPA STEMPEL) -->
+        <div style="width: 100%; margin-top: 30px;">
             <div style="float: right; width: 260px; text-align: left; position: relative; font-size: 13.5px; line-height: 1.4;">
                 Mengetahui,<br>
                 Kepala Sekolah
-                <img src="{{ asset('assets/surat/ttd_stempel.png') }}" style="position: absolute; left: -40px; top: 25px; width: 155px; height: auto; pointer-events: none; z-index: 2;" alt="Stempel & TTD">
+                
                 <span style="font-weight: bold; text-decoration: underline; margin-top: 75px; display: block; font-size: 13.5px;">Fransiska Ika, S.S, M.Pd.</span>
                 <span style="display: block; margin-top: 2px; font-size: 13px;">NIP. 19850122 200904 2 002</span>
             </div>
@@ -978,7 +1022,7 @@ $(document).ready(function() {
                 $('#create_agenda').val('Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.');
             }
             if (!$('#create_penutup').val()) {
-                $('#create_penutup').val(`Mengingat pentingnya agenda rapat tersebut, kami mengharapkan kehadiran Bapak/Ibu tepat pada waktunya agar seluruh persiapan pelaksanaan PSAS dapat dibahas dan dikoordinasikan dengan baik.\n\nDemikian undangan ini kami sampaikan. Atas perhatian dan kehadiran Bapak/Ibu, kami mengucapkan terima kasih.`);
+                $('#create_penutup').val(`Mengingat pentingnya agenda tersebut, kami mengharapkan kehadiran Bapak/Ibu tepat pada waktunya agar seluruh rangkaian kegiatan dapat dikoordinasikan dan berjalan dengan baik.\n\nDemikian surat ini kami sampaikan. Atas perhatian, kehadiran, dan kerja samanya, kami mengucapkan terima kasih.`);
             }
 
             // Ambil nomor urut otomatis jika belum terisi
@@ -1189,9 +1233,10 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
         $('#render_surat_tanggal').text(formatTanggalSuratIndo(data.tanggalStr));
         $('#render_surat_penerima').text(data.penerima || 'Bapak/Ibu Dewan Guru');
         if (data.tujuan && data.tujuan.trim() !== '') {
-            $('#render_surat_tujuan').text(data.tujuan).show();
+            $('#render_surat_tujuan').text(data.tujuan);
+            $('#render_surat_tujuan_wrapper').show();
         } else {
-            $('#render_surat_tujuan').hide();
+            $('#render_surat_tujuan_wrapper').hide();
         }
         $('#render_surat_perihal').text(data.perihal);
 
@@ -1249,7 +1294,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
         if (data.penutup && data.penutup.trim() !== '') {
             penutupHtml = escapeHtml(data.penutup).replace(/\n/g, '<br>');
         } else {
-            penutupHtml = `Mengingat pentingnya agenda rapat tersebut, kami mengharapkan kehadiran Bapak/Ibu tepat pada waktunya agar seluruh persiapan pelaksanaan dapat dibahas dan dikoordinasikan dengan baik.<br><br>Demikian surat ini kami sampaikan. Atas perhatian dan kehadiran Bapak/Ibu, kami mengucapkan terima kasih.`;
+            penutupHtml = `Mengingat pentingnya agenda tersebut, kami mengharapkan kehadiran Bapak/Ibu tepat pada waktunya agar seluruh rangkaian kegiatan dapat dikoordinasikan dan berjalan dengan baik.<br><br>Demikian surat ini kami sampaikan. Atas perhatian, kehadiran, dan kerja samanya, kami mengucapkan terima kasih.`;
         }
         $('#render_surat_penutup').html(penutupHtml);
 
