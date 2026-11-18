@@ -22,6 +22,49 @@ class SuratController extends Controller
     }
 
     /**
+     * Ambil usulan nomor urut surat keluar berikutnya (otomatis dari 001).
+     */
+    public function getNextNomorKeluar(): JsonResponse
+    {
+        $suratKeluar = DB::table('surat')
+            ->where('jenis_surat', 'Keluar')
+            ->pluck('nomor_surat');
+
+        $maxUrut = 0;
+        foreach ($suratKeluar as $nomor) {
+            if (preg_match('/\/(\d+)\-/i', $nomor, $matches)) {
+                $num = intval($matches[1]);
+                if ($num > $maxUrut) {
+                    $maxUrut = $num;
+                }
+            } elseif (preg_match('/(\d+)/', $nomor, $matches)) {
+                $num = intval($matches[1]);
+                if ($num > $maxUrut && $num < 9999) {
+                    $maxUrut = $num;
+                }
+            }
+        }
+
+        $nextUrut = str_pad($maxUrut + 1, 3, '0', STR_PAD_LEFT);
+
+        $bulanRomawi = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI',
+            7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+        ];
+        $currentMonth = intval(date('n'));
+        $currentRomawi = $bulanRomawi[$currentMonth] ?? 'I';
+
+        return response()->json([
+            'success' => true,
+            'next_urut' => $nextUrut,
+            'default_kode' => '800',
+            'default_instansi' => 'SMK',
+            'default_bulan' => $currentRomawi,
+            'full_format' => "800/{$nextUrut}-SMK/{$currentRomawi}",
+        ]);
+    }
+
+    /**
      * Load data surat untuk DataTables (AJAX POST).
      */
     public function data(Request $request): JsonResponse
@@ -278,6 +321,12 @@ class SuratController extends Controller
             'tujuan_surat' => $validated['tujuan_surat'],
             'tujuan_disposisi' => $validated['tujuan_surat'],
             'perihal' => $validated['perihal'],
+            'isi_surat' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('isi_surat') ?: null) : null,
+            'hari_tanggal' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('hari_tanggal') ?: null) : null,
+            'waktu' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('waktu') ?: null) : null,
+            'tempat' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('tempat') ?: null) : null,
+            'agenda' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('agenda') ?: null) : null,
+            'penutup' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('penutup') ?: null) : null,
             'status_disposisi' => $validated['jenis_surat'] === 'Masuk' ? ($validated['status_disposisi'] ?? 'Belum Didisposisikan') : null,
             'keterangan' => $validated['keterangan'] ?? null,
             'file_arsip' => $filePath,
@@ -379,6 +428,12 @@ class SuratController extends Controller
             'tujuan_surat' => $validated['tujuan_surat'],
             'tujuan_disposisi' => $validated['tujuan_surat'],
             'perihal' => $validated['perihal'],
+            'isi_surat' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('isi_surat') ?: null) : null,
+            'hari_tanggal' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('hari_tanggal') ?: null) : null,
+            'waktu' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('waktu') ?: null) : null,
+            'tempat' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('tempat') ?: null) : null,
+            'agenda' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('agenda') ?: null) : null,
+            'penutup' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('penutup') ?: null) : null,
             'status_disposisi' => $validated['jenis_surat'] === 'Masuk' ? ($validated['status_disposisi'] ?? null) : null,
             'keterangan' => $validated['keterangan'] ?? null,
             'file_arsip' => $filePath,

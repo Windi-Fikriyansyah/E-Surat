@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('surat')->name('surat.')->group(function () {
         Route::get('/', [SuratController::class, 'index'])->name('index');
         Route::post('/data', [SuratController::class, 'data'])->name('data');
+        Route::get('/next-nomor-keluar', [SuratController::class, 'getNextNomorKeluar'])->name('next-nomor-keluar');
         Route::post('/', [SuratController::class, 'store'])->name('store');
         Route::get('/{id}', [SuratController::class, 'show'])->name('show');
         Route::post('/{id}/update', [SuratController::class, 'update'])->name('update');

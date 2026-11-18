@@ -140,22 +140,40 @@
                                 <i class="bi bi-box-arrow-up-right me-1"></i> Surat Keluar
                             </label>
                         </div>
-                        <div class="alert alert-light-primary border-primary d-none mt-2 mb-0" id="info_create_surat_keluar">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-magic fs-4 text-primary me-2"></i>
-                                <div>
-                                    <strong class="text-primary">Generate Surat Resmi Otomatis:</strong>
-                                    <p class="mb-0 small text-muted">Surat Keluar tidak memerlukan upload berkas manual. Sistem akan otomatis membuat surat dinas resmi ber-kop SMK Negeri 1 Sadaniang lengkap dengan stempel & tanda tangan Kepala Sekolah yang siap diunduh (Gambar PNG / PDF) dan otomatis tersimpan ke arsip.</p>
-                                </div>
-                            </div>
-                        </div>
+                        
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="create_nomor_surat" class="form-label">Nomor Surat <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="create_nomor_surat" name="nomor_surat" required placeholder="Contoh: 800/134-SMKN1SDG/XI">
-                            <div class="invalid-feedback" id="error_create_nomor_surat"></div>
+                            <!-- Input Nomor Surat Masuk -->
+                            <div id="wrapper_create_nomor_masuk">
+                                <label for="create_nomor_surat_input" class="form-label">Nomor Surat <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="create_nomor_surat_input" placeholder="Contoh: 005/123/DISP-2026">
+                            </div>
+
+                            <!-- Input Nomor Surat Keluar (Per Bagian) -->
+                            <div id="wrapper_create_nomor_keluar" class="d-none">
+                                <label class="form-label fw-bold mb-1">Nomor Surat Keluar <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control text-center font-monospace" id="create_nomor_kode" placeholder="800" style="max-width: 90px;" title="Kode Klasifikasi Surat (contoh: 800)">
+                                    <span class="input-group-text fw-bold">/</span>
+                                    <input type="text" class="form-control text-center font-monospace fw-bold bg-light" id="create_nomor_urut" placeholder="001" style="max-width: 85px;" title="Nomor Urut Otomatis (mulai 001)">
+                                    <span class="input-group-text fw-bold">-</span>
+                                    <input type="text" class="form-control text-center font-monospace" id="create_nomor_instansi" placeholder="SMK" style="max-width: 100px;" title="Kode Instansi / Unit (contoh: SMK)">
+                                    <span class="input-group-text fw-bold">/</span>
+                                    <input type="text" class="form-control text-center font-monospace" id="create_nomor_bulan" placeholder="XI" style="max-width: 85px;" title="Bulan Romawi (contoh: XI)">
+                                </div>
+                                <div class="mt-1 d-flex justify-content-between align-items-center flex-wrap gap-1">
+                                    <small class="text-muted">Format: <strong class="text-primary font-monospace" id="create_nomor_preview">800/001-SMK/XI</strong></small>
+                                    <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2" id="btnRefreshNomorKeluar" title="Ambil nomor urut terbaru dari database">
+                                        <i class="bi bi-arrow-repeat me-1"></i> No Urut Auto
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Hidden input nomor_surat yang dikirim ke backend -->
+                            <input type="hidden" id="create_nomor_surat" name="nomor_surat" required>
+                            <div class="invalid-feedback d-block" id="error_create_nomor_surat"></div>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label for="create_tanggal_surat" class="form-label">Tanggal Surat <span class="text-danger">*</span></label>
@@ -207,15 +225,50 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label for="create_keterangan" class="form-label mb-0" id="label_create_keterangan">Keterangan / Isi Surat</label>
-                            <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none d-none" id="btnTemplateKeterangan">
-                                <i class="bi bi-file-text me-1"></i> Sisipkan Contoh Isi Surat
-                            </button>
+                    <!-- Bagian Khusus Surat Keluar: Isi Pengantar, Rincian Kegiatan, & Penutup -->
+                    <div class="field-keluar-only d-none">
+                        <div class="mb-3">
+                            <label for="create_isi_surat" class="form-label fw-bold">Isi Surat / Pengantar <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="create_isi_surat" name="isi_surat" rows="3" placeholder="Paragraf pengantar / pembuka sebelum rincian pelaksanaan kegiatan..."></textarea>
                         </div>
-                        <textarea class="form-control" id="create_keterangan" name="keterangan" rows="4" placeholder="Keterangan atau rincian kegiatan isi surat..."></textarea>
-                        <small class="text-muted d-block mt-1" id="help_create_keterangan">Untuk Surat Keluar, teks di atas akan dijadikan isi/paragraf surat.</small>
+
+                        <!-- Card Rincian Kegiatan -->
+                        <div class="card border mb-3 bg-light">
+                            <div class="card-body p-3">
+                                <h6 class="fw-bold text-primary mb-3">
+                                    <i class="bi bi-calendar-event me-2"></i>Rincian Waktu & Tempat Kegiatan
+                                </h6>
+                                <div class="row g-2">
+                                    <div class="col-md-6 mb-2">
+                                        <label for="create_hari_tanggal" class="form-label small fw-bold">Hari/Tanggal</label>
+                                        <input type="text" class="form-control" id="create_hari_tanggal" name="hari_tanggal" placeholder="Contoh: Kamis, 12 November 2026">
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label for="create_waktu" class="form-label small fw-bold">Waktu</label>
+                                        <input type="text" class="form-control" id="create_waktu" name="waktu" placeholder="Contoh: Pukul 09.00 WIB s.d. selesai">
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label for="create_tempat" class="form-label small fw-bold">Tempat</label>
+                                        <input type="text" class="form-control" id="create_tempat" name="tempat" placeholder="Contoh: Ruang Guru SMK Negeri 1 Sadaniang">
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label for="create_agenda" class="form-label small fw-bold">Agenda Kegiatan</label>
+                                        <input type="text" class="form-control" id="create_agenda" name="agenda" placeholder="Contoh: Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="create_penutup" class="form-label fw-bold">Paragraf Penutup Surat</label>
+                            <textarea class="form-control" id="create_penutup" name="penutup" rows="3" placeholder="Paragraf penutup surat..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Bagian Khusus Surat Masuk: Keterangan -->
+                    <div class="mb-3 field-masuk-only">
+                        <label for="create_keterangan" class="form-label">Keterangan / Catatan Tambahan</label>
+                        <textarea class="form-control" id="create_keterangan" name="keterangan" rows="3" placeholder="Catatan tambahan (opsional)"></textarea>
                         <div class="invalid-feedback" id="error_create_keterangan"></div>
                     </div>
                 </div>
@@ -271,9 +324,32 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="edit_nomor_surat" class="form-label">Nomor Surat <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="edit_nomor_surat" name="nomor_surat" required>
-                            <div class="invalid-feedback" id="error_edit_nomor_surat"></div>
+                            <!-- Input Nomor Surat Masuk (Edit) -->
+                            <div id="wrapper_edit_nomor_masuk">
+                                <label for="edit_nomor_surat_input" class="form-label">Nomor Surat <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit_nomor_surat_input">
+                            </div>
+
+                            <!-- Input Nomor Surat Keluar Per Bagian (Edit) -->
+                            <div id="wrapper_edit_nomor_keluar" class="d-none">
+                                <label class="form-label fw-bold mb-1">Nomor Surat Keluar <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control text-center font-monospace" id="edit_nomor_kode" placeholder="800" style="max-width: 90px;" title="Kode Klasifikasi">
+                                    <span class="input-group-text fw-bold">/</span>
+                                    <input type="text" class="form-control text-center font-monospace fw-bold bg-light" id="edit_nomor_urut" placeholder="001" style="max-width: 85px;" title="Nomor Urut">
+                                    <span class="input-group-text fw-bold">-</span>
+                                    <input type="text" class="form-control text-center font-monospace" id="edit_nomor_instansi" placeholder="SMK" style="max-width: 100px;" title="Kode Instansi">
+                                    <span class="input-group-text fw-bold">/</span>
+                                    <input type="text" class="form-control text-center font-monospace" id="edit_nomor_bulan" placeholder="XI" style="max-width: 85px;" title="Bulan Romawi">
+                                </div>
+                                <div class="mt-1">
+                                    <small class="text-muted">Format: <strong class="text-primary font-monospace" id="edit_nomor_preview">800/001-SMK/XI</strong></small>
+                                </div>
+                            </div>
+
+                            <!-- Hidden input nomor_surat yang dikirim ke backend -->
+                            <input type="hidden" id="edit_nomor_surat" name="nomor_surat" required>
+                            <div class="invalid-feedback d-block" id="error_edit_nomor_surat"></div>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label for="edit_tanggal_surat" class="form-label">Tanggal Surat <span class="text-danger">*</span></label>
@@ -325,9 +401,50 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="edit_keterangan" class="form-label" id="label_edit_keterangan">Keterangan / Isi Surat</label>
-                        <textarea class="form-control" id="edit_keterangan" name="keterangan" rows="4"></textarea>
+                    <!-- Bagian Khusus Surat Keluar: Isi Pengantar, Rincian Kegiatan, & Penutup (Edit) -->
+                    <div class="field-edit-keluar-only d-none">
+                        <div class="mb-3">
+                            <label for="edit_isi_surat" class="form-label fw-bold">Isi Surat / Pengantar <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="edit_isi_surat" name="isi_surat" rows="3" placeholder="Paragraf pengantar / pembuka sebelum rincian pelaksanaan kegiatan..."></textarea>
+                        </div>
+
+                        <!-- Card Rincian Kegiatan -->
+                        <div class="card border mb-3 bg-light">
+                            <div class="card-body p-3">
+                                <h6 class="fw-bold text-primary mb-3">
+                                    <i class="bi bi-calendar-event me-2"></i>Rincian Waktu & Tempat Kegiatan
+                                </h6>
+                                <div class="row g-2">
+                                    <div class="col-md-6 mb-2">
+                                        <label for="edit_hari_tanggal" class="form-label small fw-bold">Hari/Tanggal</label>
+                                        <input type="text" class="form-control" id="edit_hari_tanggal" name="hari_tanggal" placeholder="Contoh: Kamis, 12 November 2026">
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label for="edit_waktu" class="form-label small fw-bold">Waktu</label>
+                                        <input type="text" class="form-control" id="edit_waktu" name="waktu" placeholder="Contoh: Pukul 09.00 WIB s.d. selesai">
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label for="edit_tempat" class="form-label small fw-bold">Tempat</label>
+                                        <input type="text" class="form-control" id="edit_tempat" name="tempat" placeholder="Contoh: Ruang Guru SMK Negeri 1 Sadaniang">
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label for="edit_agenda" class="form-label small fw-bold">Agenda Kegiatan</label>
+                                        <input type="text" class="form-control" id="edit_agenda" name="agenda" placeholder="Contoh: Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit_penutup" class="form-label fw-bold">Paragraf Penutup Surat</label>
+                            <textarea class="form-control" id="edit_penutup" name="penutup" rows="3" placeholder="Paragraf penutup surat..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Bagian Khusus Surat Masuk: Keterangan (Edit) -->
+                    <div class="mb-3 field-edit-masuk-only">
+                        <label for="edit_keterangan" class="form-label" id="label_edit_keterangan">Keterangan / Catatan Tambahan</label>
+                        <textarea class="form-control" id="edit_keterangan" name="keterangan" rows="3"></textarea>
                         <div class="invalid-feedback" id="error_edit_keterangan"></div>
                     </div>
                 </div>
@@ -542,13 +659,37 @@
             Dengan hormat,
         </div>
 
-        <!-- ISI SURAT -->
-        <div id="render_surat_isi" style="text-align: justify; text-justify: inter-word; line-height: 1.6; margin-bottom: 16px; font-size: 13.5px;">
-            Sehubungan dengan akan dilaksanakannya kegiatan <strong>Penilaian Sumatif Akhir Semester (PSAS) Ganjil Tahun Pelajaran 2026/2027</strong>, yang pelaksanaannya mengacu pada agenda resmi sekolah. Maka bersama surat ini kami mengundang Bapak/Ibu Dewan Guru SMK Negeri 1 Sadaniang untuk menghadiri rapat persiapan dan koordinasi pelaksanaan kegiatan tersebut.
+        <!-- ISI SURAT / PENGANTAR -->
+        <div id="render_surat_isi" style="text-align: justify; text-justify: inter-word; line-height: 1.6; margin-bottom: 12px; font-size: 13.5px;">
+            Sehubungan dengan akan dilaksanakannya kegiatan...
         </div>
 
+        <!-- RINCIAN KEGIATAN -->
+        <table id="render_surat_rincian" style="margin: 8px 0 14px 20px; border-collapse: collapse; font-size: 13.5px;">
+            <tr id="render_row_hari_tanggal">
+                <td style="width: 120px; vertical-align: top; padding: 2px 0;">Hari/Tanggal</td>
+                <td style="width: 15px; vertical-align: top; padding: 2px 0;">:</td>
+                <td style="vertical-align: top; padding: 2px 0;"><strong id="render_surat_hari_tanggal">Kamis, 12 November 2026</strong></td>
+            </tr>
+            <tr id="render_row_waktu">
+                <td style="vertical-align: top; padding: 2px 0;">Waktu</td>
+                <td style="vertical-align: top; padding: 2px 0;">:</td>
+                <td style="vertical-align: top; padding: 2px 0;" id="render_surat_waktu">Pukul 09.00 WIB s.d. selesai</td>
+            </tr>
+            <tr id="render_row_tempat">
+                <td style="vertical-align: top; padding: 2px 0;">Tempat</td>
+                <td style="vertical-align: top; padding: 2px 0;">:</td>
+                <td style="vertical-align: top; padding: 2px 0;" id="render_surat_tempat">Ruang Guru SMK Negeri 1 Sadaniang</td>
+            </tr>
+            <tr id="render_row_agenda">
+                <td style="vertical-align: top; padding: 2px 0;">Agenda</td>
+                <td style="vertical-align: top; padding: 2px 0;">:</td>
+                <td style="vertical-align: top; padding: 2px 0;" id="render_surat_agenda">Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.</td>
+            </tr>
+        </table>
+
         <!-- PARAGRAF PENEGASAN & PENUTUP -->
-        <div style="text-align: justify; line-height: 1.6; margin-bottom: 24px; font-size: 13.5px;">
+        <div id="render_surat_penutup" style="text-align: justify; line-height: 1.6; margin-bottom: 24px; font-size: 13.5px;">
             Mengingat pentingnya agenda rapat tersebut, kami mengharapkan kehadiran Bapak/Ibu tepat pada waktunya agar seluruh persiapan pelaksanaan dapat dibahas dan dikoordinasikan dengan baik.
             <br><br>
             Demikian surat ini kami sampaikan. Atas perhatian dan kehadiran Bapak/Ibu, kami mengucapkan terima kasih.
@@ -608,31 +749,192 @@ $(document).ready(function() {
         return 'Sadaniang, ' + day + ' ' + (namaBulan[month] || '') + ' ' + year;
     }
 
+    // Helper Konversi Bulan ke Angka Romawi (I - XII)
+    function getBulanRomawi(dateStr) {
+        const romawi = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+        if (!dateStr) {
+            return romawi[new Date().getMonth() + 1] || 'I';
+        }
+        const parts = dateStr.split('-');
+        if (parts.length >= 2) {
+            const m = parseInt(parts[1], 10);
+            return romawi[m] || 'I';
+        }
+        return 'I';
+    }
+
+    // Update nilai gabungan nomor surat keluar pada Form Tambah
+    function updateCreateNomorKeluar() {
+        let kode = ($('#create_nomor_kode').val() || '').trim() || '800';
+        let urut = ($('#create_nomor_urut').val() || '').trim() || '001';
+        let instansi = ($('#create_nomor_instansi').val() || '').trim() || 'SMK';
+        let bulan = ($('#create_nomor_bulan').val() || '').trim() || 'XI';
+
+        let fullNomor = `${kode}/${urut}-${instansi}/${bulan}`;
+        $('#create_nomor_preview').text(fullNomor);
+        $('#create_nomor_surat').val(fullNomor);
+    }
+
+    // Ambil nomor urut otomatis berikutnya dari database
+    function fetchNextNomorKeluar(callback) {
+        $.ajax({
+            url: "{{ route('surat.next-nomor-keluar') }}",
+            type: "GET",
+            success: function(res) {
+                if (res.success) {
+                    if (!$('#create_nomor_kode').val()) {
+                        $('#create_nomor_kode').val(res.default_kode);
+                    }
+                    $('#create_nomor_urut').val(res.next_urut);
+                    if (!$('#create_nomor_instansi').val()) {
+                        $('#create_nomor_instansi').val(res.default_instansi);
+                    }
+                    let romawi = getBulanRomawi($('#create_tanggal_surat').val());
+                    $('#create_nomor_bulan').val(romawi || res.default_bulan);
+                    updateCreateNomorKeluar();
+                    if (callback) callback(res);
+                }
+            }
+        });
+    }
+
+    // Update nilai gabungan nomor surat keluar pada Form Edit
+    function updateEditNomorKeluar() {
+        let kode = ($('#edit_nomor_kode').val() || '').trim() || '800';
+        let urut = ($('#edit_nomor_urut').val() || '').trim() || '001';
+        let instansi = ($('#edit_nomor_instansi').val() || '').trim() || 'SMK';
+        let bulan = ($('#edit_nomor_bulan').val() || '').trim() || 'XI';
+
+        let fullNomor = `${kode}/${urut}-${instansi}/${bulan}`;
+        $('#edit_nomor_preview').text(fullNomor);
+        $('#edit_nomor_surat').val(fullNomor);
+    }
+
+    // Parsing string nomor surat keluar ke 4 komponen per kata
+    function parseNomorSuratKeluar(nomor) {
+        if (!nomor) {
+            return { kode: '800', urut: '001', instansi: 'SMK', bulan: 'XI' };
+        }
+        // Pola: {kode}/{urut}-{instansi}/{bulan}
+        const regex = /^([^\/]+)\/([0-9]+)-([^\/]+)\/(.+)$/i;
+        const match = nomor.match(regex);
+        if (match) {
+            return {
+                kode: match[1],
+                urut: match[2],
+                instansi: match[3],
+                bulan: match[4]
+            };
+        }
+        // Fallback jika pemisah sedikit berbeda
+        const slashParts = nomor.split('/');
+        if (slashParts.length >= 3) {
+            let midParts = slashParts[1].split('-');
+            return {
+                kode: slashParts[0] || '800',
+                urut: midParts[0] || '001',
+                instansi: midParts[1] || 'SMK',
+                bulan: slashParts[2] || 'XI'
+            };
+        }
+        return { kode: '800', urut: '001', instansi: 'SMK', bulan: 'XI' };
+    }
+
+    // Event input nomor surat masuk
+    $('#create_nomor_surat_input').on('input', function() {
+        $('#create_nomor_surat').val($(this).val());
+    });
+    $('#edit_nomor_surat_input').on('input', function() {
+        $('#edit_nomor_surat').val($(this).val());
+    });
+
+    // Event input nomor surat keluar (per bagian)
+    $('#create_nomor_kode, #create_nomor_urut, #create_nomor_instansi, #create_nomor_bulan').on('input', function() {
+        updateCreateNomorKeluar();
+    });
+    $('#edit_nomor_kode, #edit_nomor_urut, #edit_nomor_instansi, #edit_nomor_bulan').on('input', function() {
+        updateEditNomorKeluar();
+    });
+
+    // Tombol refresh nomor urut auto
+    $('#btnRefreshNomorKeluar').on('click', function() {
+        let btn = $(this);
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+        fetchNextNomorKeluar(function() {
+            btn.prop('disabled', false).html('<i class="bi bi-arrow-repeat me-1"></i> No Urut Auto');
+        });
+    });
+
+    // Perubahan tanggal otomatis menyesuaikan bulan romawi untuk surat keluar
+    $('#create_tanggal_surat').on('change', function() {
+        let currentJenis = $('input[name="jenis_surat"]:checked', '#formTambahSurat').val();
+        if (currentJenis === 'Keluar') {
+            $('#create_nomor_bulan').val(getBulanRomawi($(this).val()));
+            updateCreateNomorKeluar();
+        }
+    });
+    $('#edit_tanggal_surat').on('change', function() {
+        let currentJenis = $('input[name="jenis_surat"]:checked', '#formEditSurat').val();
+        if (currentJenis === 'Keluar') {
+            $('#edit_nomor_bulan').val(getBulanRomawi($(this).val()));
+            updateEditNomorKeluar();
+        }
+    });
+
     // Fungsi toggle UI berdasarkan jenis surat pada Form Tambah
     function toggleCreateJenisForm(jenis) {
         if (jenis === 'Keluar') {
             $('.field-masuk-only').hide();
+            $('.field-keluar-only').removeClass('d-none');
+            $('#wrapper_create_nomor_masuk').addClass('d-none');
+            $('#wrapper_create_nomor_keluar').removeClass('d-none');
             $('#info_create_surat_keluar').removeClass('d-none');
-            $('#btnTemplateKeterangan').removeClass('d-none');
             $('#label_create_tujuan').html('Tujuan / Penerima Surat <span class="text-danger">*</span>');
             $('#create_tujuan_surat').attr('placeholder', 'Contoh: Bapak/Ibu Dewan Guru');
             $('#create_asal_surat').removeAttr('required');
             $('#create_tanggal_terima').removeAttr('required');
             $('#create_status_disposisi').removeAttr('required');
             $('#create_file_arsip').val('');
-            $('#label_create_keterangan').html('Isi Surat / Keterangan <small class="text-muted">(Boleh dikosongkan untuk template otomatis)</small>');
-            $('#create_keterangan').attr('placeholder', 'Isi teks undangan / surat kegiatan (opsional, jika kosong otomatis menggunakan redaksi resmi sekolah)');
+
+            // Nilai default isi, rincian, dan penutup jika masih kosong
+            if (!$('#create_isi_surat').val()) {
+                let perihal = $('#create_perihal').val() || 'Penilaian Sumatif Akhir Semester (PSAS) Ganjil Tahun Pelajaran 2026/2027';
+                $('#create_isi_surat').val(`Sehubungan dengan akan dilaksanakannya kegiatan ${perihal}, yang pelaksanaannya mengacu pada edaran Dinas Pendidikan dan Kebudayaan Provinsi Kalimantan Barat,Nomor : 400.3/4715/DIKBUD-C. Maka kami mengundang Bapak/Ibu Dewan Guru SMK Negeri 1 Sadaniang untuk menghadiri rapat persiapan dan koordinasi pelaksanaan kegiatan tersebut, yang akan dilaksanakan pada:`);
+            }
+            if (!$('#create_hari_tanggal').val()) {
+                $('#create_hari_tanggal').val('Kamis, 12 November 2026');
+            }
+            if (!$('#create_waktu').val()) {
+                $('#create_waktu').val('Pukul 09.00 WIB s.d. selesai');
+            }
+            if (!$('#create_tempat').val()) {
+                $('#create_tempat').val('Ruang Guru SMK Negeri 1 Sadaniang');
+            }
+            if (!$('#create_agenda').val()) {
+                $('#create_agenda').val('Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.');
+            }
+            if (!$('#create_penutup').val()) {
+                $('#create_penutup').val(`Mengingat pentingnya agenda rapat tersebut, kami mengharapkan kehadiran Bapak/Ibu tepat pada waktunya agar seluruh persiapan pelaksanaan PSAS dapat dibahas dan dikoordinasikan dengan baik.\n\nDemikian undangan ini kami sampaikan. Atas perhatian dan kehadiran Bapak/Ibu, kami mengucapkan terima kasih.`);
+            }
+
+            // Ambil nomor urut otomatis jika belum terisi
+            if (!$('#create_nomor_urut').val()) {
+                fetchNextNomorKeluar();
+            } else {
+                updateCreateNomorKeluar();
+            }
         } else {
             $('.field-masuk-only').show();
+            $('.field-keluar-only').addClass('d-none');
+            $('#wrapper_create_nomor_masuk').removeClass('d-none');
+            $('#wrapper_create_nomor_keluar').addClass('d-none');
+            $('#create_nomor_surat').val($('#create_nomor_surat_input').val());
             $('#info_create_surat_keluar').addClass('d-none');
-            $('#btnTemplateKeterangan').addClass('d-none');
             $('#label_create_tujuan').html('Tujuan / Disposisi Kepada <span class="text-danger">*</span>');
             $('#create_tujuan_surat').attr('placeholder', 'Contoh: Kepala Dinas / Sekretaris / Kasubag');
             $('#create_asal_surat').attr('required', true);
             $('#create_tanggal_terima').attr('required', true);
             $('#create_status_disposisi').attr('required', true);
-            $('#label_create_keterangan').html('Keterangan / Catatan Tambahan');
-            $('#create_keterangan').attr('placeholder', 'Catatan tambahan (opsional)');
         }
     }
 
@@ -640,21 +942,27 @@ $(document).ready(function() {
     function toggleEditJenisForm(jenis) {
         if (jenis === 'Keluar') {
             $('.field-edit-masuk-only').hide();
+            $('.field-edit-keluar-only').removeClass('d-none');
+            $('#wrapper_edit_nomor_masuk').addClass('d-none');
+            $('#wrapper_edit_nomor_keluar').removeClass('d-none');
             $('#info_edit_surat_keluar').removeClass('d-none');
             $('#label_edit_tujuan').html('Tujuan / Penerima Surat <span class="text-danger">*</span>');
             $('#edit_asal_surat').removeAttr('required');
             $('#edit_tanggal_terima').removeAttr('required');
             $('#edit_status_disposisi').removeAttr('required');
             $('#edit_file_arsip').val('');
-            $('#label_edit_keterangan').html('Isi Surat / Keterangan');
+            updateEditNomorKeluar();
         } else {
             $('.field-edit-masuk-only').show();
+            $('.field-edit-keluar-only').addClass('d-none');
+            $('#wrapper_edit_nomor_masuk').removeClass('d-none');
+            $('#wrapper_edit_nomor_keluar').addClass('d-none');
+            $('#edit_nomor_surat').val($('#edit_nomor_surat_input').val());
             $('#info_edit_surat_keluar').addClass('d-none');
             $('#label_edit_tujuan').html('Tujuan / Disposisi <span class="text-danger">*</span>');
             $('#edit_asal_surat').attr('required', true);
             $('#edit_tanggal_terima').attr('required', true);
             $('#edit_status_disposisi').attr('required', true);
-            $('#label_edit_keterangan').html('Keterangan / Catatan Tambahan');
         }
     }
 
@@ -774,6 +1082,13 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
         $('#formTambahSurat')[0].reset();
         clearErrors('#formTambahSurat');
 
+        $('#create_nomor_urut').val('');
+        $('#create_nomor_kode').val('800');
+        $('#create_nomor_instansi').val('SMK');
+        $('#create_tanggal_surat').val(new Date().toISOString().slice(0, 10));
+        $('#create_tanggal_terima').val(new Date().toISOString().slice(0, 10));
+        $('#create_nomor_bulan').val(getBulanRomawi($('#create_tanggal_surat').val()));
+
         let currentTabJenis = $('#filter_jenis_surat').val();
         if (currentTabJenis === 'Keluar') {
             $('#create_jenis_keluar').prop('checked', true);
@@ -782,9 +1097,6 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
             $('#create_jenis_masuk').prop('checked', true);
             toggleCreateJenisForm('Masuk');
         }
-
-        $('#create_tanggal_surat').val(new Date().toISOString().slice(0, 10));
-        $('#create_tanggal_terima').val(new Date().toISOString().slice(0, 10));
     });
 
     // Helper untuk escape HTML
@@ -799,24 +1111,74 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
     }
 
     // Fungsi Render template surat ke canvas offscreen
-    async function generateSuratCanvas(nomor, tanggalStr, tujuan, perihal, keterangan) {
-        $('#render_surat_nomor').text(nomor);
-        $('#render_surat_tanggal').text(formatTanggalSuratIndo(tanggalStr));
-        $('#render_surat_tujuan').text(tujuan || 'Bapak/Ibu Dewan Guru');
-        if (tujuan && tujuan.toLowerCase().includes('smk')) {
+    async function generateSuratCanvas(data) {
+        $('#render_surat_nomor').text(data.nomor);
+        $('#render_surat_tanggal').text(formatTanggalSuratIndo(data.tanggalStr));
+        $('#render_surat_tujuan').text(data.tujuan || 'Bapak/Ibu Dewan Guru');
+        if (data.tujuan && data.tujuan.toLowerCase().includes('smk')) {
             $('#render_surat_subtujuan').hide();
         } else {
             $('#render_surat_subtujuan').show();
         }
-        $('#render_surat_perihal').text(perihal);
+        $('#render_surat_perihal').text(data.perihal);
 
+        // Isi Surat / Pengantar
         let isiHtml = '';
-        if (keterangan && keterangan.trim() !== '') {
-            isiHtml = escapeHtml(keterangan).replace(/\n/g, '<br>');
+        if (data.isiSurat && data.isiSurat.trim() !== '') {
+            isiHtml = escapeHtml(data.isiSurat).replace(/\n/g, '<br>');
         } else {
-            isiHtml = `Sehubungan dengan akan dilaksanakannya agenda <strong>${escapeHtml(perihal)}</strong> pada SMK Negeri 1 Sadaniang, yang pelaksanaannya mengacu pada agenda resmi sekolah. Maka kami mengundang / menugaskan Bapak/Ibu untuk dapat menghadiri pelaksanaan kegiatan tersebut.`;
+            isiHtml = `Sehubungan dengan akan dilaksanakannya agenda <strong>${escapeHtml(data.perihal)}</strong> pada SMK Negeri 1 Sadaniang, yang pelaksanaannya mengacu pada edaran dinas terkait. Maka kami mengundang Bapak/Ibu Dewan Guru SMK Negeri 1 Sadaniang untuk menghadiri rapat persiapan dan koordinasi pelaksanaan kegiatan tersebut, yang akan dilaksanakan pada:`;
         }
         $('#render_surat_isi').html(isiHtml);
+
+        // Rincian Kegiatan
+        let hasRincian = false;
+        if (data.hariTanggal && data.hariTanggal.trim() !== '') {
+            $('#render_row_hari_tanggal').show();
+            $('#render_surat_hari_tanggal').text(data.hariTanggal);
+            hasRincian = true;
+        } else {
+            $('#render_row_hari_tanggal').hide();
+        }
+
+        if (data.waktu && data.waktu.trim() !== '') {
+            $('#render_row_waktu').show();
+            $('#render_surat_waktu').text(data.waktu);
+            hasRincian = true;
+        } else {
+            $('#render_row_waktu').hide();
+        }
+
+        if (data.tempat && data.tempat.trim() !== '') {
+            $('#render_row_tempat').show();
+            $('#render_surat_tempat').text(data.tempat);
+            hasRincian = true;
+        } else {
+            $('#render_row_tempat').hide();
+        }
+
+        if (data.agenda && data.agenda.trim() !== '') {
+            $('#render_row_agenda').show();
+            $('#render_surat_agenda').text(data.agenda);
+            hasRincian = true;
+        } else {
+            $('#render_row_agenda').hide();
+        }
+
+        if (hasRincian) {
+            $('#render_surat_rincian').show();
+        } else {
+            $('#render_surat_rincian').hide();
+        }
+
+        // Paragraf Penutup Surat
+        let penutupHtml = '';
+        if (data.penutup && data.penutup.trim() !== '') {
+            penutupHtml = escapeHtml(data.penutup).replace(/\n/g, '<br>');
+        } else {
+            penutupHtml = `Mengingat pentingnya agenda rapat tersebut, kami mengharapkan kehadiran Bapak/Ibu tepat pada waktunya agar seluruh persiapan pelaksanaan dapat dibahas dan dikoordinasikan dengan baik.<br><br>Demikian surat ini kami sampaikan. Atas perhatian dan kehadiran Bapak/Ibu, kami mengucapkan terima kasih.`;
+        }
+        $('#render_surat_penutup').html(penutupHtml);
 
         // Render dengan html2canvas
         const targetElement = document.getElementById('suratRenderElement');
@@ -849,9 +1211,25 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                 let tanggal = $('#create_tanggal_surat').val();
                 let tujuan = $('#create_tujuan_surat').val();
                 let perihal = $('#create_perihal').val();
-                let keterangan = $('#create_keterangan').val();
+                let isiSurat = $('#create_isi_surat').val();
+                let hariTanggal = $('#create_hari_tanggal').val();
+                let waktu = $('#create_waktu').val();
+                let tempat = $('#create_tempat').val();
+                let agenda = $('#create_agenda').val();
+                let penutup = $('#create_penutup').val();
 
-                const canvas = await generateSuratCanvas(nomor, tanggal, tujuan, perihal, keterangan);
+                const canvas = await generateSuratCanvas({
+                    nomor: nomor,
+                    tanggalStr: tanggal,
+                    tujuan: tujuan,
+                    perihal: perihal,
+                    isiSurat: isiSurat,
+                    hariTanggal: hariTanggal,
+                    waktu: waktu,
+                    tempat: tempat,
+                    agenda: agenda,
+                    penutup: penutup
+                });
                 const dataUrl = canvas.toDataURL('image/png');
 
                 formData.append('generated_image', dataUrl);
@@ -896,6 +1274,9 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         $.each(errors, function(key, val) {
                             $('#create_' + key).addClass('is-invalid');
                             $('#error_create_' + key).text(val[0]);
+                            if (key === 'nomor_surat') {
+                                $('#create_nomor_surat_input, #create_nomor_kode, #create_nomor_urut, #create_nomor_instansi, #create_nomor_bulan').addClass('is-invalid');
+                            }
                         });
                     } else {
                         Swal.fire({
@@ -951,7 +1332,29 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                     $('#detail_tanggal_surat').text(s.tanggal_surat);
                     $('#detail_tujuan_surat').text(s.tujuan_surat || s.tujuan_disposisi || '-');
                     $('#detail_perihal').text(s.perihal);
-                    $('#detail_keterangan').html(s.keterangan ? s.keterangan.replace(/\n/g, '<br>') : '-');
+                    if (isMasuk) {
+                        $('#detail_keterangan').html(s.keterangan ? s.keterangan.replace(/\n/g, '<br>') : '-');
+                    } else {
+                        let htmlContent = '';
+                        if (s.isi_surat) {
+                            htmlContent += '<p class="mb-2"><strong>Isi Pengantar:</strong><br>' + s.isi_surat.replace(/\n/g, '<br>') + '</p>';
+                        }
+                        if (s.hari_tanggal || s.waktu || s.tempat || s.agenda) {
+                            htmlContent += '<div class="p-2 bg-light rounded border mb-2 small">' +
+                                '<div><strong>Hari/Tanggal:</strong> ' + (s.hari_tanggal || '-') + '</div>' +
+                                '<div><strong>Waktu:</strong> ' + (s.waktu || '-') + '</div>' +
+                                '<div><strong>Tempat:</strong> ' + (s.tempat || '-') + '</div>' +
+                                '<div><strong>Agenda:</strong> ' + (s.agenda || '-') + '</div>' +
+                                '</div>';
+                        }
+                        if (s.penutup) {
+                            htmlContent += '<p class="mb-0 text-muted small"><strong>Penutup:</strong><br>' + s.penutup.replace(/\n/g, '<br>') + '</p>';
+                        }
+                        if (!htmlContent) {
+                            htmlContent = s.keterangan ? s.keterangan.replace(/\n/g, '<br>') : '-';
+                        }
+                        $('#detail_keterangan').html(htmlContent);
+                    }
                     $('#detail_creator').text(s.creator_name ? s.creator_name + ' (pada ' + s.created_at + ')' : '-');
 
                     let footerActions = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>';
@@ -999,9 +1402,23 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                     $('#edit_id').val(s.id);
                     if (s.jenis_surat === 'Keluar') {
                         $('#edit_jenis_keluar').prop('checked', true);
+                        let parsed = parseNomorSuratKeluar(s.nomor_surat);
+                        $('#edit_nomor_kode').val(parsed.kode);
+                        $('#edit_nomor_urut').val(parsed.urut);
+                        $('#edit_nomor_instansi').val(parsed.instansi);
+                        $('#edit_nomor_bulan').val(parsed.bulan);
+                        $('#edit_isi_surat').val(s.isi_surat || '');
+                        $('#edit_hari_tanggal').val(s.hari_tanggal || '');
+                        $('#edit_waktu').val(s.waktu || '');
+                        $('#edit_tempat').val(s.tempat || '');
+                        $('#edit_agenda').val(s.agenda || '');
+                        $('#edit_penutup').val(s.penutup || '');
                         toggleEditJenisForm('Keluar');
                     } else {
                         $('#edit_jenis_masuk').prop('checked', true);
+                        $('#edit_nomor_surat_input').val(s.nomor_surat);
+                        $('#edit_nomor_surat').val(s.nomor_surat);
+                        $('#edit_keterangan').val(s.keterangan || '');
                         toggleEditJenisForm('Masuk');
                     }
 
@@ -1012,7 +1429,6 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                     $('#edit_tujuan_surat').val(s.tujuan_surat || s.tujuan_disposisi);
                     $('#edit_perihal').val(s.perihal);
                     $('#edit_status_disposisi').val(s.status_disposisi || 'Belum Didisposisikan');
-                    $('#edit_keterangan').val(s.keterangan);
                     $('#edit_file_arsip').val('');
 
                     if (res.file_url) {
@@ -1058,9 +1474,25 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                 let tanggal = $('#edit_tanggal_surat').val();
                 let tujuan = $('#edit_tujuan_surat').val();
                 let perihal = $('#edit_perihal').val();
-                let keterangan = $('#edit_keterangan').val();
+                let isiSurat = $('#edit_isi_surat').val();
+                let hariTanggal = $('#edit_hari_tanggal').val();
+                let waktu = $('#edit_waktu').val();
+                let tempat = $('#edit_tempat').val();
+                let agenda = $('#edit_agenda').val();
+                let penutup = $('#edit_penutup').val();
 
-                const canvas = await generateSuratCanvas(nomor, tanggal, tujuan, perihal, keterangan);
+                const canvas = await generateSuratCanvas({
+                    nomor: nomor,
+                    tanggalStr: tanggal,
+                    tujuan: tujuan,
+                    perihal: perihal,
+                    isiSurat: isiSurat,
+                    hariTanggal: hariTanggal,
+                    waktu: waktu,
+                    tempat: tempat,
+                    agenda: agenda,
+                    penutup: penutup
+                });
                 const dataUrl = canvas.toDataURL('image/png');
 
                 formData.append('generated_image', dataUrl);
@@ -1105,6 +1537,9 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         $.each(errors, function(key, val) {
                             $('#edit_' + key).addClass('is-invalid');
                             $('#error_edit_' + key).text(val[0]);
+                            if (key === 'nomor_surat') {
+                                $('#edit_nomor_surat_input, #edit_nomor_kode, #edit_nomor_urut, #edit_nomor_instansi, #edit_nomor_bulan').addClass('is-invalid');
+                            }
                         });
                     } else {
                         Swal.fire({

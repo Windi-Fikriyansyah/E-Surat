@@ -307,18 +307,58 @@
 
             <!-- ISI SURAT -->
             <div class="isi-surat">
-                @if(!empty($surat->keterangan))
+                @if(!empty($surat->isi_surat))
+                    {!! nl2br(e($surat->isi_surat)) !!}
+                @elseif(!empty($surat->keterangan))
                     {!! nl2br(e($surat->keterangan)) !!}
                 @else
-                    Sehubungan dengan akan dilaksanakannya kegiatan <strong>{{ $surat->perihal }}</strong> pada SMK Negeri 1 Sadaniang, yang pelaksanaannya mengacu pada agenda resmi sekolah. Maka kami mengundang / menugaskan Bapak/Ibu untuk dapat menghadiri pelaksanaan kegiatan tersebut.
+                    Sehubungan dengan akan dilaksanakannya kegiatan <strong>{{ $surat->perihal }}</strong> pada SMK Negeri 1 Sadaniang, yang pelaksanaannya mengacu pada edaran dinas terkait. Maka kami mengundang Bapak/Ibu Dewan Guru SMK Negeri 1 Sadaniang untuk menghadiri rapat persiapan dan koordinasi pelaksanaan kegiatan tersebut, yang akan dilaksanakan pada:
                 @endif
             </div>
 
+            <!-- RINCIAN KEGIATAN -->
+            @if(!empty($surat->hari_tanggal) || !empty($surat->waktu) || !empty($surat->tempat) || !empty($surat->agenda))
+            <table class="table-rincian">
+                @if(!empty($surat->hari_tanggal))
+                <tr>
+                    <td style="width: 120px;">Hari/Tanggal</td>
+                    <td style="width: 15px;">:</td>
+                    <td><strong>{{ $surat->hari_tanggal }}</strong></td>
+                </tr>
+                @endif
+                @if(!empty($surat->waktu))
+                <tr>
+                    <td>Waktu</td>
+                    <td>:</td>
+                    <td>{{ $surat->waktu }}</td>
+                </tr>
+                @endif
+                @if(!empty($surat->tempat))
+                <tr>
+                    <td>Tempat</td>
+                    <td>:</td>
+                    <td>{{ $surat->tempat }}</td>
+                </tr>
+                @endif
+                @if(!empty($surat->agenda))
+                <tr>
+                    <td>Agenda</td>
+                    <td>:</td>
+                    <td>{{ $surat->agenda }}</td>
+                </tr>
+                @endif
+            </table>
+            @endif
+
             <!-- PARAGRAF PENEGASAN & PENUTUP -->
             <div class="paragraf-penutup">
-                Mengingat pentingnya agenda tersebut, kami mengharapkan kehadiran Bapak/Ibu tepat pada waktunya agar seluruh persiapan dan kegiatan dapat dikoordinasikan dengan baik.
-                <br><br>
-                Demikian surat ini kami sampaikan. Atas perhatian dan kerja samanya, kami mengucapkan terima kasih.
+                @if(!empty($surat->penutup))
+                    {!! nl2br(e($surat->penutup)) !!}
+                @else
+                    Mengingat pentingnya agenda tersebut, kami mengharapkan kehadiran Bapak/Ibu tepat pada waktunya agar seluruh rangkaian kegiatan dapat dikoordinasikan dan berjalan dengan baik.
+                    <br><br>
+                    Demikian surat ini kami sampaikan. Atas perhatian, kehadiran, dan kerja samanya, kami mengucapkan terima kasih.
+                @endif
             </div>
 
             <!-- TANDA TANGAN & STEMPEL -->
@@ -326,7 +366,7 @@
                 <div class="ttd-box">
                     Mengetahui,<br>
                     Kepala Sekolah
-                    <img src="{{ asset('assets/surat/ttd_stempel.png') }}" class="ttd-stempel-img" alt="Stempel & Tanda Tangan">
+                    
                     <span class="nama-pejabat">Fransiska Ika, S.S, M.Pd.</span>
                     <span class="nip-pejabat">NIP. 19850122 200904 2 002</span>
                 </div>
