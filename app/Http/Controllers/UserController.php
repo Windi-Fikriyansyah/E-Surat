@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,7 +29,9 @@ class UserController extends Controller
     {
         $this->checkAdmin();
 
-        return view('users.index');
+        $roles = Role::orderBy('name')->get();
+
+        return view('users.index', compact('roles'));
     }
 
     /**
@@ -45,7 +48,8 @@ class UserController extends Controller
             ->addColumn('role_badge', function ($user) {
                 $badgeClass = match ($user->role) {
                     'Admin' => 'bg-primary',
-                    'Pimpinan' => 'bg-info text-dark',
+                    'Kepala Sekolah' => 'bg-info text-dark',
+                    'Staff' => 'bg-success',
                     default => 'bg-secondary',
                 };
 
@@ -122,7 +126,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users,username'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'role' => ['required', Rule::in(['Admin', 'Pimpinan', 'User'])],
+            'role' => ['required', 'string', 'exists:roles,name'],
             'password' => ['required', 'string', 'min:6'],
             'is_active' => ['required', 'boolean'],
         ], [
@@ -133,7 +137,7 @@ class UserController extends Controller
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email sudah digunakan.',
             'role.required' => 'Role wajib dipilih.',
-            'role.in' => 'Role harus Admin, Pimpinan, atau User.',
+            'role.exists' => 'Role yang dipilih tidak valid dalam sistem.',
             'password.required' => 'Password wajib diisi.',
             'password.min' => 'Password minimal 6 karakter.',
         ]);
@@ -146,6 +150,8 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
             'is_active' => $validated['is_active'],
         ]);
+
+        $user->syncRoles([$validated['role']]);
 
         return response()->json([
             'success' => true,
@@ -165,7 +171,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', Rule::unique('users', 'username')->ignore($user->id)],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'role' => ['required', Rule::in(['Admin', 'Pimpinan', 'User'])],
+            'role' => ['required', 'string', 'exists:roles,name'],
             'is_active' => ['required', 'boolean'],
         ], [
             'name.required' => 'Nama pengguna wajib diisi.',
@@ -175,7 +181,7 @@ class UserController extends Controller
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email sudah digunakan.',
             'role.required' => 'Role wajib dipilih.',
-            'role.in' => 'Role harus Admin, Pimpinan, atau User.',
+            'role.exists' => 'Role yang dipilih tidak valid dalam sistem.',
         ]);
 
         // Prevent self-deactivation or demoting own admin role
@@ -185,6 +191,7 @@ class UserController extends Controller
         }
 
         $user->update($validated);
+        $user->syncRoles([$validated['role']]);
 
         return response()->json([
             'success' => true,

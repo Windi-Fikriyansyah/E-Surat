@@ -84,9 +84,9 @@
                             <label for="create_role" class="form-label">Role <span class="text-danger">*</span></label>
                             <select class="form-select" id="create_role" name="role" required>
                                 <option value="" disabled selected>Pilih Role</option>
-                                <option value="Admin">Admin</option>
-                                <option value="Pimpinan">Pimpinan</option>
-                                <option value="User">User</option>
+                                @foreach ($roles as $r)
+                                    <option value="{{ $r->name }}">{{ $r->name }}</option>
+                                @endforeach
                             </select>
                             <div class="invalid-feedback" id="error_create_role"></div>
                         </div>
@@ -155,9 +155,10 @@
                         <div class="col-md-6 mb-3">
                             <label for="edit_role" class="form-label">Role <span class="text-danger">*</span></label>
                             <select class="form-select" id="edit_role" name="role" required>
-                                <option value="Admin">Admin</option>
-                                <option value="Pimpinan">Pimpinan</option>
-                                <option value="User">User</option>
+                                <option value="" disabled>Pilih Role</option>
+                                @foreach ($roles as $r)
+                                    <option value="{{ $r->name }}">{{ $r->name }}</option>
+                                @endforeach
                             </select>
                             <div class="invalid-feedback" id="error_edit_role"></div>
                         </div>

@@ -20,59 +20,7 @@
         </div>
     </div>
 
-    <!-- Cards Ringkasan -->
-    <div class="row mb-4">
-        <div class="col-12 col-md-4 mb-3">
-            <div class="card h-100 border-0 shadow-sm border-start border-primary border-4">
-                <div class="card-body px-3 py-3">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-primary text-white me-3 d-flex align-items-center justify-content-center rounded" style="width: 48px; height: 48px;">
-                            <i class="bi bi-shield-fill-check fs-4"></i>
-                        </div>
-                        <div>
-                            <h6 class="text-muted font-semibold mb-1">Total Role</h6>
-                            <h4 class="font-extrabold mb-0 text-primary" id="cardTotalRoles">{{ $totalRoles }}</h4>
-                            <small class="text-muted">Peran terdaftar</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-4 mb-3">
-            <div class="card h-100 border-0 shadow-sm border-start border-info border-4">
-                <div class="card-body px-3 py-3">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-info text-white me-3 d-flex align-items-center justify-content-center rounded" style="width: 48px; height: 48px;">
-                            <i class="bi bi-key-fill fs-4"></i>
-                        </div>
-                        <div>
-                            <h6 class="text-muted font-semibold mb-1">Total Hak Akses</h6>
-                            <h4 class="font-extrabold mb-0 text-info">{{ $totalPermissions }}</h4>
-                            <small class="text-muted">Izin fitur (Permissions)</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-4 mb-3">
-            <div class="card h-100 border-0 shadow-sm border-start border-success border-4">
-                <div class="card-body px-3 py-3">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-success text-white me-3 d-flex align-items-center justify-content-center rounded" style="width: 48px; height: 48px;">
-                            <i class="bi bi-person-check-fill fs-4"></i>
-                        </div>
-                        <div>
-                            <h6 class="text-muted font-semibold mb-1">Keamanan Sistem</h6>
-                            <h4 class="font-extrabold mb-0 text-success">Aktif</h4>
-                            <small class="text-muted">Spatie Laravel Permission</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
     <!-- Data Table Card -->
     <div class="card border-0 shadow-sm">
@@ -107,135 +55,131 @@
 <!-- Modal Tambah Role -->
 <div class="modal fade" id="modalTambahRole" tabindex="-1" aria-labelledby="modalTambahRoleLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg">
+        <form id="formTambahRole" class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title text-white" id="modalTambahRoleLabel">
                     <i class="bi bi-plus-circle me-2"></i>Tambah Role & Atur Hak Akses
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formTambahRole">
-                <div class="modal-body p-4">
-                    <div class="mb-4">
-                        <label for="create_name" class="form-label fw-bold">Nama Role <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-lg" id="create_name" name="name" placeholder="Contoh: Tata Usaha, Arsiparis, Operator..." required>
-                        <div class="invalid-feedback" id="error_create_name"></div>
-                        <small class="text-muted">Nama peran pengguna dalam sistem.</small>
-                    </div>
+            <div class="modal-body p-4" style="max-height: calc(85vh - 130px); overflow-y: auto;">
+                <div class="mb-4">
+                    <label for="create_name" class="form-label fw-bold">Nama Role <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-lg" id="create_name" name="name" placeholder="Contoh: Tata Usaha, Arsiparis, Operator..." required>
+                    <div class="invalid-feedback" id="error_create_name"></div>
+                    <small class="text-muted">Nama peran pengguna dalam sistem.</small>
+                </div>
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-shield-check me-2 text-primary"></i>Pilih Hak Akses (Permissions)</h6>
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="btnCheckAllTambah">Centang Semua</button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUncheckAllTambah">Hapus Semua</button>
-                        </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-shield-check me-2 text-primary"></i>Pilih Hak Akses (Permissions)</h6>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="btnCheckAllTambah">Centang Semua</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUncheckAllTambah">Hapus Semua</button>
                     </div>
+                </div>
 
-                    <div class="accordion" id="accordionPermissionsTambah">
-                        @foreach ($permissionGroups as $groupName => $perms)
-                            <div class="accordion-item mb-2 border rounded">
-                                <h2 class="accordion-header" id="heading_tambah_{{ Str::slug($groupName) }}">
-                                    <button class="accordion-button py-2 bg-light text-dark fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_tambah_{{ Str::slug($groupName) }}" aria-expanded="true">
-                                        <i class="bi bi-folder-fill me-2 text-primary"></i>{{ $groupName }} ({{ count($perms) }})
-                                    </button>
-                                </h2>
-                                <div id="collapse_tambah_{{ Str::slug($groupName) }}" class="accordion-collapse collapse show">
-                                    <div class="accordion-body p-3">
-                                        <div class="row g-2">
-                                            @foreach ($perms as $permName => $permDesc)
-                                                <div class="col-md-6">
-                                                    <div class="form-check p-2 border rounded bg-white hover-shadow-sm">
-                                                        <input class="form-check-input perm-checkbox-tambah ms-1" type="checkbox" name="permissions[]" value="{{ $permName }}" id="perm_tambah_{{ Str::slug($permName) }}">
-                                                        <label class="form-check-label ms-2 d-block cursor-pointer" for="perm_tambah_{{ Str::slug($permName) }}">
-                                                            <strong class="d-block font-monospace text-primary small">{{ $permName }}</strong>
-                                                            <span class="text-muted small">{{ $permDesc }}</span>
-                                                        </label>
-                                                    </div>
+                <div class="accordion" id="accordionPermissionsTambah">
+                    @foreach ($permissionGroups as $groupName => $perms)
+                        <div class="accordion-item mb-2 border rounded">
+                            <h2 class="accordion-header" id="heading_tambah_{{ Str::slug($groupName) }}">
+                                <button class="accordion-button py-2 bg-light text-dark fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_tambah_{{ Str::slug($groupName) }}" aria-expanded="true">
+                                    <i class="bi bi-folder-fill me-2 text-primary"></i>{{ $groupName }} ({{ count($perms) }})
+                                </button>
+                            </h2>
+                            <div id="collapse_tambah_{{ Str::slug($groupName) }}" class="accordion-collapse collapse show">
+                                <div class="accordion-body p-3">
+                                    <div class="row g-2">
+                                        @foreach ($perms as $permName => $permDesc)
+                                            <div class="col-md-6">
+                                                <div class="form-check p-2 border rounded bg-white hover-shadow-sm">
+                                                    <input class="form-check-input perm-checkbox-tambah ms-1" type="checkbox" name="permissions[]" value="{{ $permName }}" id="perm_tambah_{{ Str::slug($permName) }}">
+                                                    <label class="form-check-label ms-2 d-block cursor-pointer" for="perm_tambah_{{ Str::slug($permName) }}">
+                                                        <strong class="d-block font-monospace text-primary small">{{ $permName }}</strong>
+                                                        <span class="text-muted small">{{ $permDesc }}</span>
+                                                    </label>
                                                 </div>
-                                            @endforeach
-                                        </div>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary px-4" id="btnSubmitTambahRole">
-                        <i class="bi bi-save me-1"></i> Simpan Role
-                    </button>
-                </div>
-            </form>
-        </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary px-4" id="btnSubmitTambahRole">
+                    <i class="bi bi-save me-1"></i> Simpan Role
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 <!-- Modal Edit Role -->
 <div class="modal fade" id="modalEditRole" tabindex="-1" aria-labelledby="modalEditRoleLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg">
+        <form id="formEditRole" class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-warning text-dark">
                 <h5 class="modal-title fw-bold" id="modalEditRoleLabel">
                     <i class="bi bi-pencil-square me-2"></i>Ubah Role & Hak Akses
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formEditRole">
+            <div class="modal-body p-4" style="max-height: calc(85vh - 130px); overflow-y: auto;">
                 <input type="hidden" id="edit_id" name="id">
-                <div class="modal-body p-4">
-                    <div class="mb-4">
-                        <label for="edit_name" class="form-label fw-bold">Nama Role <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-lg" id="edit_name" name="name" required>
-                        <div class="invalid-feedback" id="error_edit_name"></div>
-                        <small class="text-muted" id="edit_name_help">Nama peran pengguna dalam sistem.</small>
-                    </div>
+                <div class="mb-4">
+                    <label for="edit_name" class="form-label fw-bold">Nama Role <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-lg" id="edit_name" name="name" required>
+                    <div class="invalid-feedback" id="error_edit_name"></div>
+                    <small class="text-muted" id="edit_name_help">Nama peran pengguna dalam sistem.</small>
+                </div>
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-shield-check me-2 text-warning"></i>Atur Hak Akses (Permissions)</h6>
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="btnCheckAllEdit">Centang Semua</button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUncheckAllEdit">Hapus Semua</button>
-                        </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-shield-check me-2 text-warning"></i>Atur Hak Akses (Permissions)</h6>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="btnCheckAllEdit">Centang Semua</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnUncheckAllEdit">Hapus Semua</button>
                     </div>
+                </div>
 
-                    <div class="accordion" id="accordionPermissionsEdit">
-                        @foreach ($permissionGroups as $groupName => $perms)
-                            <div class="accordion-item mb-2 border rounded">
-                                <h2 class="accordion-header" id="heading_edit_{{ Str::slug($groupName) }}">
-                                    <button class="accordion-button py-2 bg-light text-dark fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_edit_{{ Str::slug($groupName) }}" aria-expanded="true">
-                                        <i class="bi bi-folder-fill me-2 text-warning"></i>{{ $groupName }} ({{ count($perms) }})
-                                    </button>
-                                </h2>
-                                <div id="collapse_edit_{{ Str::slug($groupName) }}" class="accordion-collapse collapse show">
-                                    <div class="accordion-body p-3">
-                                        <div class="row g-2">
-                                            @foreach ($perms as $permName => $permDesc)
-                                                <div class="col-md-6">
-                                                    <div class="form-check p-2 border rounded bg-white hover-shadow-sm">
-                                                        <input class="form-check-input perm-checkbox-edit ms-1" type="checkbox" name="permissions[]" value="{{ $permName }}" id="perm_edit_{{ Str::slug($permName) }}">
-                                                        <label class="form-check-label ms-2 d-block cursor-pointer" for="perm_edit_{{ Str::slug($permName) }}">
-                                                            <strong class="d-block font-monospace text-primary small">{{ $permName }}</strong>
-                                                            <span class="text-muted small">{{ $permDesc }}</span>
-                                                        </label>
-                                                    </div>
+                <div class="accordion" id="accordionPermissionsEdit">
+                    @foreach ($permissionGroups as $groupName => $perms)
+                        <div class="accordion-item mb-2 border rounded">
+                            <h2 class="accordion-header" id="heading_edit_{{ Str::slug($groupName) }}">
+                                <button class="accordion-button py-2 bg-light text-dark fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_edit_{{ Str::slug($groupName) }}" aria-expanded="true">
+                                    <i class="bi bi-folder-fill me-2 text-warning"></i>{{ $groupName }} ({{ count($perms) }})
+                                </button>
+                            </h2>
+                            <div id="collapse_edit_{{ Str::slug($groupName) }}" class="accordion-collapse collapse show">
+                                <div class="accordion-body p-3">
+                                    <div class="row g-2">
+                                        @foreach ($perms as $permName => $permDesc)
+                                            <div class="col-md-6">
+                                                <div class="form-check p-2 border rounded bg-white hover-shadow-sm">
+                                                    <input class="form-check-input perm-checkbox-edit ms-1" type="checkbox" name="permissions[]" value="{{ $permName }}" id="perm_edit_{{ Str::slug($permName) }}">
+                                                    <label class="form-check-label ms-2 d-block cursor-pointer" for="perm_edit_{{ Str::slug($permName) }}">
+                                                        <strong class="d-block font-monospace text-primary small">{{ $permName }}</strong>
+                                                        <span class="text-muted small">{{ $permDesc }}</span>
+                                                    </label>
                                                 </div>
-                                            @endforeach
-                                        </div>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-warning px-4 text-dark fw-bold" id="btnSubmitEditRole">
-                        <i class="bi bi-save me-1"></i> Perbarui Role
-                    </button>
-                </div>
-            </form>
-        </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-warning px-4 text-dark fw-bold" id="btnSubmitEditRole">
+                    <i class="bi bi-save me-1"></i> Perbarui Role
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection
