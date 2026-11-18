@@ -14,13 +14,13 @@
             box-sizing: border-box;
         }
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            color: #000;
-            background: #e9ecef;
-            margin: 0;
-            padding: 0;
-            font-size: 13.5px;
-            line-height: 1.5;
+            font-family: "Times New Roman", Times, serif;
+    color: #000;
+    background: #e9ecef;
+    margin: 0;
+    padding: 0;
+    font-size: 12pt;
+    line-height: 1.5;
         }
         .no-print {
             text-align: center;
@@ -97,29 +97,41 @@
             height: auto;
             display: block;
         }
-        .kop-text {
-            text-align: center;
-            padding: 0 10px;
+        .kop-logo1 {
+            width: 95px;
+            height: auto;
+            display: block;
         }
-        .kop-text h4 {
-            margin: 0;
-            font-size: 14.5px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-        .kop-text h2 {
-            margin: 3px 0 4px 0;
-            font-size: 19.5px;
-            font-weight: 800;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-        }
-        .kop-text p {
-            margin: 0;
-            font-size: 12px;
-            line-height: 1.4;
-        }
+.kop-text {
+    text-align: center;
+    padding: 0 10px;
+    vertical-align: middle;
+}
+
+.kop-text h4 {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: normal;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1.1;
+}
+
+.kop-text h2 {
+    margin: 1px 0 2px 0;
+    font-size: 19.5px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    line-height: 1.1;
+}
+
+.kop-text p {
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    line-height: 1.15;
+}
         .kop-divider {
             border-top: 3.5px solid #000;
             border-bottom: 1.2px solid #000;
@@ -256,8 +268,8 @@
                         <p>Jalan Raya Pudak, Provinsi Kalimantan Barat, Kode Pos 78361</p>
                         <p>Hp. 081348969697, Website: <span style="text-decoration: underline; color: #0056b3;">http://www.smkn1sadaniang.sch.id</span></p>
                     </td>
-                    <td style="width: 80px; text-align: right;">
-                        <img src="{{ asset('assets/surat/logo_smk.png') }}" class="kop-logo" alt="Logo SMK">
+                    <td style="width: 100px; height: auto;">
+                        <img src="{{ asset('assets/surat/logo_smk.png') }}" class="kop-logo1" alt="Logo SMK">
                     </td>
                 </tr>
             </table>
