@@ -78,6 +78,7 @@ class SuratController extends Controller
                 'surat.tanggal_surat',
                 'surat.tanggal_terima',
                 'surat.asal_surat',
+                'surat.penerima_surat',
                 'surat.tujuan_surat',
                 'surat.tujuan_disposisi',
                 'surat.perihal',
@@ -97,6 +98,7 @@ class SuratController extends Controller
                         $q->where('surat.nomor_surat', 'like', "%{$search}%")
                             ->orWhere('surat.perihal', 'like', "%{$search}%")
                             ->orWhere('surat.asal_surat', 'like', "%{$search}%")
+                            ->orWhere('surat.penerima_surat', 'like', "%{$search}%")
                             ->orWhere('surat.tujuan_surat', 'like', "%{$search}%");
                     });
                 }
@@ -141,13 +143,22 @@ class SuratController extends Controller
                 return date('d/m/Y', strtotime($row->tanggal_surat));
             })
             ->addColumn('tujuan_display', function ($row) {
-                $tujuan = $row->tujuan_surat ?: $row->tujuan_disposisi ?: '-';
-                if ($row->jenis_surat === 'Masuk' && $row->asal_surat) {
-                    return '<div><strong>Dari:</strong> ' . e($row->asal_surat) . '</div>' .
-                           '<div class="text-muted small"><strong>Disposisi:</strong> ' . e($tujuan) . '</div>';
+                if ($row->jenis_surat === 'Masuk') {
+                    $tujuan = $row->tujuan_surat ?: $row->tujuan_disposisi ?: '-';
+                    if ($row->asal_surat) {
+                        return '<div><strong>Dari:</strong> ' . e($row->asal_surat) . '</div>' .
+                               '<div class="text-muted small"><strong>Disposisi:</strong> ' . e($tujuan) . '</div>';
+                    }
+                    return '<div><strong>Disposisi:</strong> ' . e($tujuan) . '</div>';
                 }
 
-                return '<div><strong>Kepada:</strong> ' . e($tujuan) . '</div>';
+                $penerima = $row->penerima_surat ?: $row->tujuan_surat ?: '-';
+                if ($row->penerima_surat && $row->tujuan_surat) {
+                    return '<div><strong>Penerima:</strong> ' . e($penerima) . '</div>' .
+                           '<div class="text-muted small"><strong>Tujuan:</strong> ' . e($row->tujuan_surat) . '</div>';
+                }
+
+                return '<div><strong>Penerima:</strong> ' . e($penerima) . '</div>';
             })
             ->addColumn('status_badge', function ($row) {
                 if ($row->jenis_surat === 'Keluar') {
@@ -268,6 +279,7 @@ class SuratController extends Controller
             'nomor_surat' => ['required', 'string', 'max:255', 'unique:surat,nomor_surat'],
             'tanggal_surat' => ['required', 'date'],
             'tujuan_surat' => ['required', 'string', 'max:255'],
+            'penerima_surat' => [Rule::requiredIf($request->jenis_surat === 'Keluar'), 'nullable', 'string', 'max:255'],
             'perihal' => ['required', 'string'],
             'keterangan' => ['nullable', 'string'],
             'file_arsip' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
@@ -282,7 +294,8 @@ class SuratController extends Controller
             'nomor_surat.required' => 'Nomor surat wajib diisi.',
             'nomor_surat.unique' => 'Nomor surat sudah terdaftar sebelumnya.',
             'tanggal_surat.required' => 'Tanggal surat wajib diisi.',
-            'tujuan_surat.required' => $request->jenis_surat === 'Keluar' ? 'Tujuan / penerima surat wajib diisi.' : 'Tujuan / disposisi surat wajib diisi.',
+            'penerima_surat.required' => 'Penerima surat wajib diisi.',
+            'tujuan_surat.required' => $request->jenis_surat === 'Keluar' ? 'Tujuan surat wajib diisi.' : 'Tujuan / disposisi surat wajib diisi.',
             'asal_surat.required' => 'Asal surat / pengirim wajib diisi untuk surat masuk.',
             'tanggal_terima.required' => 'Tanggal terima surat wajib diisi untuk surat masuk.',
             'status_disposisi.required' => 'Status disposisi wajib dipilih untuk surat masuk.',
@@ -318,6 +331,7 @@ class SuratController extends Controller
             'tanggal_surat' => $validated['tanggal_surat'],
             'tanggal_terima' => $validated['jenis_surat'] === 'Masuk' ? ($validated['tanggal_terima'] ?? now()->toDateString()) : null,
             'asal_surat' => $validated['jenis_surat'] === 'Masuk' ? ($validated['asal_surat'] ?? null) : null,
+            'penerima_surat' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('penerima_surat') ?: null) : null,
             'tujuan_surat' => $validated['tujuan_surat'],
             'tujuan_disposisi' => $validated['tujuan_surat'],
             'perihal' => $validated['perihal'],
@@ -367,6 +381,7 @@ class SuratController extends Controller
             'nomor_surat' => ['required', 'string', 'max:255', Rule::unique('surat', 'nomor_surat')->ignore($id)],
             'tanggal_surat' => ['required', 'date'],
             'tujuan_surat' => ['required', 'string', 'max:255'],
+            'penerima_surat' => [Rule::requiredIf($request->jenis_surat === 'Keluar'), 'nullable', 'string', 'max:255'],
             'perihal' => ['required', 'string'],
             'keterangan' => ['nullable', 'string'],
             'file_arsip' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
@@ -381,7 +396,8 @@ class SuratController extends Controller
             'nomor_surat.required' => 'Nomor surat wajib diisi.',
             'nomor_surat.unique' => 'Nomor surat sudah terdaftar sebelumnya.',
             'tanggal_surat.required' => 'Tanggal surat wajib diisi.',
-            'tujuan_surat.required' => $request->jenis_surat === 'Keluar' ? 'Tujuan / penerima surat wajib diisi.' : 'Tujuan / disposisi surat wajib diisi.',
+            'penerima_surat.required' => 'Penerima surat wajib diisi.',
+            'tujuan_surat.required' => $request->jenis_surat === 'Keluar' ? 'Tujuan surat wajib diisi.' : 'Tujuan / disposisi surat wajib diisi.',
             'asal_surat.required' => 'Asal surat / pengirim wajib diisi untuk surat masuk.',
             'tanggal_terima.required' => 'Tanggal terima surat wajib diisi untuk surat masuk.',
             'status_disposisi.required' => 'Status disposisi wajib dipilih untuk surat masuk.',
@@ -425,6 +441,7 @@ class SuratController extends Controller
             'tanggal_surat' => $validated['tanggal_surat'],
             'tanggal_terima' => $validated['jenis_surat'] === 'Masuk' ? ($validated['tanggal_terima'] ?? null) : null,
             'asal_surat' => $validated['jenis_surat'] === 'Masuk' ? ($validated['asal_surat'] ?? null) : null,
+            'penerima_surat' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('penerima_surat') ?: null) : null,
             'tujuan_surat' => $validated['tujuan_surat'],
             'tujuan_disposisi' => $validated['tujuan_surat'],
             'perihal' => $validated['perihal'],

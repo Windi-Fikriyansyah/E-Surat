@@ -189,14 +189,22 @@
                     </div>
 
                     <div class="row">
+                        <!-- Khusus Surat Masuk: Asal Surat / Pengirim -->
                         <div class="col-md-6 mb-3 field-masuk-only">
                             <label for="create_asal_surat" class="form-label">Asal Surat / Pengirim <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="create_asal_surat" name="asal_surat" placeholder="Instansi / Pengirim">
                             <div class="invalid-feedback" id="error_create_asal_surat"></div>
                         </div>
+                        <!-- Khusus Surat Keluar: Penerima Surat -->
+                        <div class="col-md-6 mb-3 field-keluar-only d-none">
+                            <label for="create_penerima_surat" class="form-label">Penerima Surat <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="create_penerima_surat" name="penerima_surat" placeholder="Contoh: Bapak/Ibu Dewan Guru">
+                            <div class="invalid-feedback" id="error_create_penerima_surat"></div>
+                        </div>
+                        <!-- Tujuan Surat / Disposisi -->
                         <div class="col-md-6 mb-3" id="wrapper_create_tujuan">
                             <label for="create_tujuan_surat" class="form-label" id="label_create_tujuan">Tujuan / Disposisi Kepada <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="create_tujuan_surat" name="tujuan_surat" required placeholder="Contoh: Bapak/Ibu Dewan Guru">
+                            <input type="text" class="form-control" id="create_tujuan_surat" name="tujuan_surat" required placeholder="Contoh: SMK Negeri 1 Sadaniang">
                             <div class="invalid-feedback" id="error_create_tujuan_surat"></div>
                         </div>
                     </div>
@@ -364,11 +372,19 @@
                     </div>
 
                     <div class="row">
+                        <!-- Khusus Surat Masuk: Asal Surat / Pengirim (Edit) -->
                         <div class="col-md-6 mb-3 field-edit-masuk-only">
                             <label for="edit_asal_surat" class="form-label">Asal Surat / Pengirim <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="edit_asal_surat" name="asal_surat">
                             <div class="invalid-feedback" id="error_edit_asal_surat"></div>
                         </div>
+                        <!-- Khusus Surat Keluar: Penerima Surat (Edit) -->
+                        <div class="col-md-6 mb-3 field-edit-keluar-only d-none">
+                            <label for="edit_penerima_surat" class="form-label">Penerima Surat <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="edit_penerima_surat" name="penerima_surat" placeholder="Contoh: Bapak/Ibu Dewan Guru">
+                            <div class="invalid-feedback" id="error_edit_penerima_surat"></div>
+                        </div>
+                        <!-- Tujuan Surat / Disposisi (Edit) -->
                         <div class="col-md-6 mb-3" id="wrapper_edit_tujuan">
                             <label for="edit_tujuan_surat" class="form-label" id="label_edit_tujuan">Tujuan / Disposisi <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="edit_tujuan_surat" name="tujuan_surat" required>
@@ -492,6 +508,10 @@
                             <tr id="row_detail_asal">
                                 <th class="bg-light">Asal Surat / Pengirim</th>
                                 <td id="detail_asal_surat">-</td>
+                            </tr>
+                            <tr id="row_detail_penerima">
+                                <th class="bg-light">Penerima Surat</th>
+                                <td id="detail_penerima_surat" class="fw-bold">-</td>
                             </tr>
                             <tr>
                                 <th class="bg-light" id="th_detail_tujuan">Tujuan / Penerima</th>
@@ -649,8 +669,8 @@
         <!-- TUJUAN SURAT -->
         <div style="margin-bottom: 20px; line-height: 1.5; font-size: 13.5px;">
             Kepada Yth.<br>
-            <strong id="render_surat_tujuan">Bapak/Ibu Dewan Guru</strong><br>
-            <span id="render_surat_subtujuan">SMK Negeri 1 Sadaniang</span><br>
+            <strong id="render_surat_penerima">Bapak/Ibu Dewan Guru</strong><br>
+            <span id="render_surat_tujuan">SMK Negeri 1 Sadaniang</span><br>
             di Tempat
         </div>
 
@@ -889,8 +909,15 @@ $(document).ready(function() {
             $('#wrapper_create_nomor_masuk').addClass('d-none');
             $('#wrapper_create_nomor_keluar').removeClass('d-none');
             $('#info_create_surat_keluar').removeClass('d-none');
-            $('#label_create_tujuan').html('Tujuan / Penerima Surat <span class="text-danger">*</span>');
-            $('#create_tujuan_surat').attr('placeholder', 'Contoh: Bapak/Ibu Dewan Guru');
+            $('#label_create_tujuan').html('Tujuan Surat <span class="text-danger">*</span>');
+            $('#create_tujuan_surat').attr('placeholder', 'Contoh: SMK Negeri 1 Sadaniang');
+            if (!$('#create_penerima_surat').val()) {
+                $('#create_penerima_surat').val('Bapak/Ibu Dewan Guru');
+            }
+            if (!$('#create_tujuan_surat').val()) {
+                $('#create_tujuan_surat').val('SMK Negeri 1 Sadaniang');
+            }
+            $('#create_penerima_surat').attr('required', true);
             $('#create_asal_surat').removeAttr('required');
             $('#create_tanggal_terima').removeAttr('required');
             $('#create_status_disposisi').removeAttr('required');
@@ -932,6 +959,7 @@ $(document).ready(function() {
             $('#info_create_surat_keluar').addClass('d-none');
             $('#label_create_tujuan').html('Tujuan / Disposisi Kepada <span class="text-danger">*</span>');
             $('#create_tujuan_surat').attr('placeholder', 'Contoh: Kepala Dinas / Sekretaris / Kasubag');
+            $('#create_penerima_surat').removeAttr('required');
             $('#create_asal_surat').attr('required', true);
             $('#create_tanggal_terima').attr('required', true);
             $('#create_status_disposisi').attr('required', true);
@@ -946,7 +974,9 @@ $(document).ready(function() {
             $('#wrapper_edit_nomor_masuk').addClass('d-none');
             $('#wrapper_edit_nomor_keluar').removeClass('d-none');
             $('#info_edit_surat_keluar').removeClass('d-none');
-            $('#label_edit_tujuan').html('Tujuan / Penerima Surat <span class="text-danger">*</span>');
+            $('#label_edit_tujuan').html('Tujuan Surat <span class="text-danger">*</span>');
+            $('#edit_tujuan_surat').attr('placeholder', 'Contoh: SMK Negeri 1 Sadaniang');
+            $('#edit_penerima_surat').attr('required', true);
             $('#edit_asal_surat').removeAttr('required');
             $('#edit_tanggal_terima').removeAttr('required');
             $('#edit_status_disposisi').removeAttr('required');
@@ -960,6 +990,8 @@ $(document).ready(function() {
             $('#edit_nomor_surat').val($('#edit_nomor_surat_input').val());
             $('#info_edit_surat_keluar').addClass('d-none');
             $('#label_edit_tujuan').html('Tujuan / Disposisi <span class="text-danger">*</span>');
+            $('#edit_tujuan_surat').attr('placeholder', '');
+            $('#edit_penerima_surat').removeAttr('required');
             $('#edit_asal_surat').attr('required', true);
             $('#edit_tanggal_terima').attr('required', true);
             $('#edit_status_disposisi').attr('required', true);
@@ -1114,11 +1146,11 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
     async function generateSuratCanvas(data) {
         $('#render_surat_nomor').text(data.nomor);
         $('#render_surat_tanggal').text(formatTanggalSuratIndo(data.tanggalStr));
-        $('#render_surat_tujuan').text(data.tujuan || 'Bapak/Ibu Dewan Guru');
-        if (data.tujuan && data.tujuan.toLowerCase().includes('smk')) {
-            $('#render_surat_subtujuan').hide();
+        $('#render_surat_penerima').text(data.penerima || 'Bapak/Ibu Dewan Guru');
+        if (data.tujuan && data.tujuan.trim() !== '') {
+            $('#render_surat_tujuan').text(data.tujuan).show();
         } else {
-            $('#render_surat_subtujuan').show();
+            $('#render_surat_tujuan').hide();
         }
         $('#render_surat_perihal').text(data.perihal);
 
@@ -1209,6 +1241,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                 btn.html('<span class="spinner-border spinner-border-sm me-1"></span> Menghasilkan Surat Resmi...');
                 let nomor = $('#create_nomor_surat').val();
                 let tanggal = $('#create_tanggal_surat').val();
+                let penerima = $('#create_penerima_surat').val() || 'Bapak/Ibu Dewan Guru';
                 let tujuan = $('#create_tujuan_surat').val();
                 let perihal = $('#create_perihal').val();
                 let isiSurat = $('#create_isi_surat').val();
@@ -1221,6 +1254,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                 const canvas = await generateSuratCanvas({
                     nomor: nomor,
                     tanggalStr: tanggal,
+                    penerima: penerima,
                     tujuan: tujuan,
                     perihal: perihal,
                     isiSurat: isiSurat,
@@ -1315,6 +1349,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         $('#detail_tanggal_terima').text(s.tanggal_terima || '-');
                         $('#row_detail_asal').show();
                         $('#detail_asal_surat').text(s.asal_surat || '-');
+                        $('#row_detail_penerima').hide();
                         $('#th_detail_tujuan').text('Tujuan / Disposisi Kepada');
                         $('#row_detail_status_disposisi').show();
 
@@ -1324,7 +1359,9 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         $('#detail_jenis_surat').html('<span class="badge bg-primary"><i class="bi bi-box-arrow-up-right me-1"></i>Surat Keluar</span>');
                         $('#row_detail_tanggal_terima').hide();
                         $('#row_detail_asal').hide();
-                        $('#th_detail_tujuan').text('Tujuan / Penerima Surat');
+                        $('#row_detail_penerima').show();
+                        $('#detail_penerima_surat').text(s.penerima_surat || '-');
+                        $('#th_detail_tujuan').text('Tujuan Surat');
                         $('#row_detail_status_disposisi').hide();
                     }
 
@@ -1407,6 +1444,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         $('#edit_nomor_urut').val(parsed.urut);
                         $('#edit_nomor_instansi').val(parsed.instansi);
                         $('#edit_nomor_bulan').val(parsed.bulan);
+                        $('#edit_penerima_surat').val(s.penerima_surat || '');
                         $('#edit_isi_surat').val(s.isi_surat || '');
                         $('#edit_hari_tanggal').val(s.hari_tanggal || '');
                         $('#edit_waktu').val(s.waktu || '');
@@ -1418,6 +1456,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         $('#edit_jenis_masuk').prop('checked', true);
                         $('#edit_nomor_surat_input').val(s.nomor_surat);
                         $('#edit_nomor_surat').val(s.nomor_surat);
+                        $('#edit_penerima_surat').val('');
                         $('#edit_keterangan').val(s.keterangan || '');
                         toggleEditJenisForm('Masuk');
                     }
@@ -1472,6 +1511,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                 btn.html('<span class="spinner-border spinner-border-sm me-1"></span> Menghasilkan Ulang Surat...');
                 let nomor = $('#edit_nomor_surat').val();
                 let tanggal = $('#edit_tanggal_surat').val();
+                let penerima = $('#edit_penerima_surat').val() || 'Bapak/Ibu Dewan Guru';
                 let tujuan = $('#edit_tujuan_surat').val();
                 let perihal = $('#edit_perihal').val();
                 let isiSurat = $('#edit_isi_surat').val();
@@ -1484,6 +1524,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                 const canvas = await generateSuratCanvas({
                     nomor: nomor,
                     tanggalStr: tanggal,
+                    penerima: penerima,
                     tujuan: tujuan,
                     perihal: perihal,
                     isiSurat: isiSurat,

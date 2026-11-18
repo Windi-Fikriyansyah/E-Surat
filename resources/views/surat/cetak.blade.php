@@ -293,8 +293,10 @@
             <!-- TUJUAN SURAT -->
             <div class="tujuan-surat">
                 Kepada Yth.<br>
-                <strong>{{ $surat->tujuan_surat ?: 'Bapak/Ibu Dewan Guru' }}</strong><br>
-                @if(stripos($surat->tujuan_surat, 'SMK') === false)
+                <strong>{{ $surat->penerima_surat ?: $surat->tujuan_surat ?: 'Bapak/Ibu Dewan Guru' }}</strong><br>
+                @if(!empty($surat->penerima_surat) && !empty($surat->tujuan_surat))
+                    {{ $surat->tujuan_surat }}<br>
+                @elseif(empty($surat->penerima_surat) && stripos($surat->tujuan_surat, 'SMK') === false)
                     SMK Negeri 1 Sadaniang<br>
                 @endif
                 di Tempat
