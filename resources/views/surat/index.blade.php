@@ -147,8 +147,17 @@
                         <div class="col-md-6 mb-3">
                             <!-- Input Nomor Surat Masuk -->
                             <div id="wrapper_create_nomor_masuk">
-                                <label for="create_nomor_surat_input" class="form-label">Nomor Surat <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="create_nomor_surat_input" placeholder="Contoh: 005/123/DISP-2026">
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <label for="create_no_agenda" class="form-label">No. Agenda</label>
+                                        <input type="number" class="form-control bg-light font-monospace fw-bold text-center" id="create_no_agenda" name="no_agenda" placeholder="1" readonly>
+                                        <small class="text-muted small">Otomatis urut</small>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label for="create_nomor_surat_input" class="form-label">Nomor Surat <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="create_nomor_surat_input" placeholder="Contoh: 005/123/DISP-2026">
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Input Nomor Surat Keluar (Per Bagian) -->
@@ -334,8 +343,17 @@
                         <div class="col-md-6 mb-3">
                             <!-- Input Nomor Surat Masuk (Edit) -->
                             <div id="wrapper_edit_nomor_masuk">
-                                <label for="edit_nomor_surat_input" class="form-label">Nomor Surat <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="edit_nomor_surat_input">
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <label for="edit_no_agenda" class="form-label">No. Agenda</label>
+                                        <input type="number" class="form-control bg-light font-monospace fw-bold text-center" id="edit_no_agenda" name="no_agenda" readonly>
+                                        <small class="text-muted small">No urut agenda</small>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label for="edit_nomor_surat_input" class="form-label">Nomor Surat <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_nomor_surat_input">
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Input Nomor Surat Keluar Per Bagian (Edit) -->
@@ -492,6 +510,10 @@
                             <tr>
                                 <th style="width: 32%;" class="bg-light">Jenis Surat</th>
                                 <td id="detail_jenis_surat" class="fw-bold">-</td>
+                            </tr>
+                            <tr id="row_detail_no_agenda">
+                                <th class="bg-light">No. Agenda</th>
+                                <td id="detail_no_agenda" class="fw-bold text-primary">-</td>
                             </tr>
                             <tr>
                                 <th class="bg-light">Nomor Surat</th>
@@ -818,6 +840,20 @@ $(document).ready(function() {
         });
     }
 
+    // Ambil nomor agenda otomatis berikutnya untuk surat masuk (mulai dari 1)
+    function fetchNextNoAgenda(callback) {
+        $.ajax({
+            url: "{{ route('surat.next-no-agenda') }}",
+            type: "GET",
+            success: function(res) {
+                if (res.success) {
+                    $('#create_no_agenda').val(res.next_agenda);
+                    if (callback) callback(res);
+                }
+            }
+        });
+    }
+
     // Update nilai gabungan nomor surat keluar pada Form Edit
     function updateEditNomorKeluar() {
         let kode = ($('#edit_nomor_kode').val() || '').trim() || '800';
@@ -922,6 +958,7 @@ $(document).ready(function() {
             $('#create_tanggal_terima').removeAttr('required');
             $('#create_status_disposisi').removeAttr('required');
             $('#create_file_arsip').val('');
+            $('#create_no_agenda').val('');
 
             // Nilai default isi, rincian, dan penutup jika masih kosong
             if (!$('#create_isi_surat').val()) {
@@ -963,6 +1000,9 @@ $(document).ready(function() {
             $('#create_asal_surat').attr('required', true);
             $('#create_tanggal_terima').attr('required', true);
             $('#create_status_disposisi').attr('required', true);
+
+            // Ambil nomor agenda otomatis untuk surat masuk (mulai dari 1)
+            fetchNextNoAgenda();
         }
     }
 
@@ -981,6 +1021,7 @@ $(document).ready(function() {
             $('#edit_tanggal_terima').removeAttr('required');
             $('#edit_status_disposisi').removeAttr('required');
             $('#edit_file_arsip').val('');
+            $('#edit_no_agenda').val('');
             updateEditNomorKeluar();
         } else {
             $('.field-edit-masuk-only').show();
@@ -1345,6 +1386,8 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
 
                     if (isMasuk) {
                         $('#detail_jenis_surat').html('<span class="badge bg-success"><i class="bi bi-box-arrow-in-down me-1"></i>Surat Masuk</span>');
+                        $('#row_detail_no_agenda').show();
+                        $('#detail_no_agenda').html(s.no_agenda ? '<span class="badge bg-light text-primary border font-monospace fs-6"><i class="bi bi-bookmark-fill me-1"></i>Agenda #' + s.no_agenda + '</span>' : '<span class="text-muted">-</span>');
                         $('#row_detail_tanggal_terima').show();
                         $('#detail_tanggal_terima').text(s.tanggal_terima || '-');
                         $('#row_detail_asal').show();
@@ -1357,6 +1400,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         $('#detail_status_disposisi').html('<span class="badge ' + badgeClass + '">' + (s.status_disposisi || 'Belum Didisposisikan') + '</span>');
                     } else {
                         $('#detail_jenis_surat').html('<span class="badge bg-primary"><i class="bi bi-box-arrow-up-right me-1"></i>Surat Keluar</span>');
+                        $('#row_detail_no_agenda').hide();
                         $('#row_detail_tanggal_terima').hide();
                         $('#row_detail_asal').hide();
                         $('#row_detail_penerima').show();
@@ -1454,6 +1498,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         toggleEditJenisForm('Keluar');
                     } else {
                         $('#edit_jenis_masuk').prop('checked', true);
+                        $('#edit_no_agenda').val(s.no_agenda || '');
                         $('#edit_nomor_surat_input').val(s.nomor_surat);
                         $('#edit_nomor_surat').val(s.nomor_surat);
                         $('#edit_penerima_surat').val('');

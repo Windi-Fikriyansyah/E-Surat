@@ -22,6 +22,23 @@ class SuratController extends Controller
     }
 
     /**
+     * Ambil nomor agenda surat masuk berikutnya (otomatis dari 1).
+     */
+    public function getNextNoAgenda(): JsonResponse
+    {
+        $maxAgenda = DB::table('surat')
+            ->where('jenis_surat', 'Masuk')
+            ->max('no_agenda');
+
+        $nextAgenda = ($maxAgenda ? intval($maxAgenda) : 0) + 1;
+
+        return response()->json([
+            'success' => true,
+            'next_agenda' => $nextAgenda,
+        ]);
+    }
+
+    /**
      * Ambil usulan nomor urut surat keluar berikutnya (otomatis dari 001).
      */
     public function getNextNomorKeluar(): JsonResponse
@@ -73,6 +90,7 @@ class SuratController extends Controller
             ->leftJoin('users', 'surat.user_id', '=', 'users.id')
             ->select([
                 'surat.id',
+                'surat.no_agenda',
                 'surat.jenis_surat',
                 'surat.nomor_surat',
                 'surat.tanggal_surat',
@@ -96,6 +114,7 @@ class SuratController extends Controller
                     $search = $request->input('search.value');
                     $query->where(function ($q) use ($search) {
                         $q->where('surat.nomor_surat', 'like', "%{$search}%")
+                            ->orWhere('surat.no_agenda', 'like', "%{$search}%")
                             ->orWhere('surat.perihal', 'like', "%{$search}%")
                             ->orWhere('surat.asal_surat', 'like', "%{$search}%")
                             ->orWhere('surat.penerima_surat', 'like', "%{$search}%")
@@ -138,6 +157,14 @@ class SuratController extends Controller
                 }
 
                 return '<span class="badge bg-primary"><i class="bi bi-box-arrow-up-right me-1"></i>Surat Keluar</span>';
+            })
+            ->editColumn('nomor_surat', function ($row) {
+                if ($row->jenis_surat === 'Masuk' && $row->no_agenda) {
+                    return '<div><span class="badge bg-light text-primary border font-monospace me-1 mb-1"><i class="bi bi-bookmark-fill me-1"></i>Agenda #' . e($row->no_agenda) . '</span></div>' .
+                           '<strong>' . e($row->nomor_surat) . '</strong>';
+                }
+
+                return '<strong>' . e($row->nomor_surat) . '</strong>';
             })
             ->editColumn('tanggal_surat', function ($row) {
                 return date('d/m/Y', strtotime($row->tanggal_surat));
@@ -224,7 +251,7 @@ class SuratController extends Controller
 
                 return '<div class="d-flex align-items-center">' . $btnDetail . $btnCetak . $btnEdit . $btnDelete . '</div>';
             })
-            ->rawColumns(['jenis_badge', 'tujuan_display', 'status_badge', 'file_badge', 'action'])
+            ->rawColumns(['jenis_badge', 'nomor_surat', 'tujuan_display', 'status_badge', 'file_badge', 'action'])
             ->make(true);
     }
 
@@ -325,7 +352,14 @@ class SuratController extends Controller
             $filePath = $file->storeAs($folder, $fileName, 'public');
         }
 
+        $noAgenda = null;
+        if ($validated['jenis_surat'] === 'Masuk') {
+            $maxAgenda = DB::table('surat')->where('jenis_surat', 'Masuk')->max('no_agenda');
+            $noAgenda = $request->filled('no_agenda') ? intval($request->input('no_agenda')) : (($maxAgenda ? intval($maxAgenda) : 0) + 1);
+        }
+
         $id = DB::table('surat')->insertGetId([
+            'no_agenda' => $noAgenda,
             'jenis_surat' => $validated['jenis_surat'],
             'nomor_surat' => $validated['nomor_surat'],
             'tanggal_surat' => $validated['tanggal_surat'],
@@ -435,7 +469,20 @@ class SuratController extends Controller
             $filePath = $file->storeAs($folder, $fileName, 'public');
         }
 
+        $noAgenda = $surat->no_agenda;
+        if ($validated['jenis_surat'] === 'Masuk') {
+            if ($request->filled('no_agenda')) {
+                $noAgenda = intval($request->input('no_agenda'));
+            } elseif (is_null($noAgenda)) {
+                $maxAgenda = DB::table('surat')->where('jenis_surat', 'Masuk')->max('no_agenda');
+                $noAgenda = ($maxAgenda ? intval($maxAgenda) : 0) + 1;
+            }
+        } else {
+            $noAgenda = null;
+        }
+
         DB::table('surat')->where('id', $id)->update([
+            'no_agenda' => $noAgenda,
             'jenis_surat' => $validated['jenis_surat'],
             'nomor_surat' => $validated['nomor_surat'],
             'tanggal_surat' => $validated['tanggal_surat'],
