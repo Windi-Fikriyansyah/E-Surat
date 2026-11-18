@@ -122,15 +122,19 @@
                         </a>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
+                        @can('laporan.cetak')
                         <a href="{{ route('laporan.cetak', request()->all()) }}" target="_blank" class="btn btn-outline-primary px-3">
                             <i class="bi bi-printer-fill me-1"></i> Cetak Laporan
                         </a>
+                        @endcan
+                        @can('laporan.export')
                         <a href="{{ route('laporan.pdf', request()->all()) }}" class="btn btn-danger px-3">
                             <i class="bi bi-file-earmark-pdf-fill me-1"></i> Ekspor PDF
                         </a>
                         <a href="{{ route('laporan.excel', request()->all()) }}" class="btn btn-success px-3">
                             <i class="bi bi-file-earmark-excel-fill me-1"></i> Ekspor Excel
                         </a>
+                        @endcan
                     </div>
                 </div>
             </form>

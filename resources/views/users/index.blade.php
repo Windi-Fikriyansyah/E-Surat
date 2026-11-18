@@ -24,9 +24,11 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Daftar Pengguna</h5>
+                @can('users.manage')
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahUser">
                     <i class="bi bi-person-plus-fill me-1"></i> Tambah Pengguna
                 </button>
+                @endcan
             </div>
             <div class="card-body">
                 <div class="table-responsive">

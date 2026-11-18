@@ -47,10 +47,32 @@ class RoleController extends Controller
     }
 
     /**
+     * Check if user has permission to view roles
+     */
+    protected function checkViewPermission(): void
+    {
+        if (!auth()->user()?->can('roles.view') && !auth()->user()?->can('roles.manage')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk melihat daftar role.');
+        }
+    }
+
+    /**
+     * Check if user has permission to manage roles
+     */
+    protected function checkManagePermission(): void
+    {
+        if (!auth()->user()?->can('roles.manage')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk mengelola role.');
+        }
+    }
+
+    /**
      * Halaman index Manajemen Role
      */
     public function index()
     {
+        $this->checkViewPermission();
+
         $permissionGroups = $this->getPermissionGroups();
         $allPermissions = Permission::orderBy('name')->get();
         $totalRoles = Role::count();
@@ -64,6 +86,8 @@ class RoleController extends Controller
      */
     public function data(Request $request)
     {
+        $this->checkViewPermission();
+
         $roles = Role::with('permissions')->withCount('users')->select('roles.*');
 
         return DataTables::of($roles)
@@ -92,6 +116,10 @@ class RoleController extends Controller
                 return '<span class="badge bg-info text-dark font-monospace"><i class="bi bi-people-fill me-1"></i>' . $role->users_count . ' Pengguna</span>';
             })
             ->addColumn('action', function ($role) {
+                if (!auth()->user()?->can('roles.manage')) {
+                    return '<span class="badge bg-light text-muted border">Hanya Lihat</span>';
+                }
+
                 $isSystemRole = in_array(strtolower($role->name), ['admin']);
                 
                 $btn = '<div class="btn-group" role="group">';
@@ -121,6 +149,7 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkManagePermission();
         $request->validate([
             'name' => 'required|string|max:100|unique:roles,name',
             'permissions' => 'nullable|array',
@@ -162,6 +191,7 @@ class RoleController extends Controller
      */
     public function show($id)
     {
+        $this->checkManagePermission();
         $role = Role::with('permissions')->find($id);
 
         if (!$role) {
@@ -187,6 +217,7 @@ class RoleController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $this->checkManagePermission();
         $role = Role::find($id);
 
         if (!$role) {
@@ -249,6 +280,7 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
+        $this->checkManagePermission();
         $role = Role::withCount('users')->find($id);
 
         if (!$role) {

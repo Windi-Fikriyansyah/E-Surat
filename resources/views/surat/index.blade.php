@@ -44,9 +44,15 @@
                     <div class="col-md-2">
                         <label for="filter_jenis_surat" class="form-label">Jenis Surat</label>
                         <select class="form-select" id="filter_jenis_surat" name="jenis_surat">
-                            <option value="">Semua Jenis</option>
-                            <option value="Masuk" {{ $defaultJenis === 'Masuk' ? 'selected' : '' }}>Surat Masuk</option>
-                            <option value="Keluar" {{ $defaultJenis === 'Keluar' ? 'selected' : '' }}>Surat Keluar</option>
+                            @if(auth()->user()?->can('surat-masuk.view') && auth()->user()?->can('surat-keluar.view'))
+                                <option value="">Semua Jenis</option>
+                            @endif
+                            @can('surat-masuk.view')
+                                <option value="Masuk" {{ $defaultJenis === 'Masuk' || !auth()->user()?->can('surat-keluar.view') ? 'selected' : '' }}>Surat Masuk</option>
+                            @endcan
+                            @can('surat-keluar.view')
+                                <option value="Keluar" {{ $defaultJenis === 'Keluar' || !auth()->user()?->can('surat-masuk.view') ? 'selected' : '' }}>Surat Keluar</option>
+                            @endcan
                         </select>
                     </div>
                     <div class="col-md-2" id="filter_disposisi_wrapper">
@@ -85,9 +91,11 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h5 class="card-title mb-0" id="tableCardTitle">Daftar Surat</h5>
+                @canany(['surat-masuk.create', 'surat-keluar.create'])
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahSurat">
                     <i class="bi bi-plus-circle-fill me-1"></i> Tambah Surat
                 </button>
+                @endcanany
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -130,17 +138,20 @@
                     <div class="mb-3 p-3 bg-light rounded border">
                         <label class="form-label fw-bold d-block mb-2">Pilih Jenis Surat <span class="text-danger">*</span></label>
                         <div class="btn-group w-100 mb-2" role="group">
-                            <input type="radio" class="btn-check jenis-surat-radio" name="jenis_surat" id="create_jenis_masuk" value="Masuk" checked>
+                            @can('surat-masuk.create')
+                            <input type="radio" class="btn-check jenis-surat-radio" name="jenis_surat" id="create_jenis_masuk" value="Masuk" {{ auth()->user()?->can('surat-masuk.create') ? 'checked' : '' }}>
                             <label class="btn btn-outline-success py-2" for="create_jenis_masuk">
                                 <i class="bi bi-box-arrow-in-down me-1"></i> Surat Masuk
                             </label>
+                            @endcan
 
-                            <input type="radio" class="btn-check jenis-surat-radio" name="jenis_surat" id="create_jenis_keluar" value="Keluar">
+                            @can('surat-keluar.create')
+                            <input type="radio" class="btn-check jenis-surat-radio" name="jenis_surat" id="create_jenis_keluar" value="Keluar" {{ !auth()->user()?->can('surat-masuk.create') ? 'checked' : '' }}>
                             <label class="btn btn-outline-primary py-2" for="create_jenis_keluar">
                                 <i class="bi bi-box-arrow-up-right me-1"></i> Surat Keluar
                             </label>
+                            @endcan
                         </div>
-                        
                     </div>
 
                     <div class="row">
@@ -1207,10 +1218,10 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
         $('#create_nomor_bulan').val(getBulanRomawi($('#create_tanggal_surat').val()));
 
         let currentTabJenis = $('#filter_jenis_surat').val();
-        if (currentTabJenis === 'Keluar') {
+        if ($('#create_jenis_keluar').length && (currentTabJenis === 'Keluar' || !$('#create_jenis_masuk').length)) {
             $('#create_jenis_keluar').prop('checked', true);
             toggleCreateJenisForm('Keluar');
-        } else {
+        } else if ($('#create_jenis_masuk').length) {
             $('#create_jenis_masuk').prop('checked', true);
             toggleCreateJenisForm('Masuk');
         }

@@ -28,9 +28,11 @@
             <h5 class="card-title mb-0">
                 <i class="bi bi-list-stars me-2 text-primary"></i>Daftar Role & Hak Akses
             </h5>
+            @can('roles.manage')
             <button type="button" class="btn btn-primary" id="btnBukaModalTambah">
                 <i class="bi bi-plus-circle me-1"></i> Tambah Role Baru
             </button>
+            @endcan
         </div>
         <div class="card-body pt-3">
             <div class="table-responsive">

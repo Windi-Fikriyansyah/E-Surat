@@ -117,6 +117,10 @@ class LaporanController extends Controller
      */
     public function index(Request $request)
     {
+        if (!auth()->user()?->can('laporan.view')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk melihat laporan.');
+        }
+
         $data = $this->buildLaporanQuery($request);
 
         return view('laporan.index', [
@@ -132,6 +136,10 @@ class LaporanController extends Controller
      */
     public function cetak(Request $request)
     {
+        if (!auth()->user()?->can('laporan.cetak')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk mencetak laporan.');
+        }
+
         $data = $this->buildLaporanQuery($request);
 
         return view('laporan.cetak', [
@@ -147,6 +155,10 @@ class LaporanController extends Controller
      */
     public function exportPdf(Request $request)
     {
+        if (!auth()->user()?->can('laporan.export')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk mengekspor laporan ke PDF.');
+        }
+
         $data = $this->buildLaporanQuery($request);
 
         $pdf = Pdf::loadView('laporan.pdf', [
@@ -168,6 +180,10 @@ class LaporanController extends Controller
      */
     public function exportExcel(Request $request)
     {
+        if (!auth()->user()?->can('laporan.export')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk mengekspor laporan ke Excel.');
+        }
+
         $data = $this->buildLaporanQuery($request);
 
         $jenisText = $data['filters']['jenis_surat'] ?: 'Semua';

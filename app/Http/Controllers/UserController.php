@@ -13,12 +13,22 @@ use Yajra\DataTables\Facades\DataTables;
 class UserController extends Controller
 {
     /**
-     * Check if the authenticated user is an Admin.
+     * Check if the authenticated user has permission to view users.
      */
-    protected function checkAdmin(): void
+    protected function checkViewPermission(): void
     {
-        if (auth()->user()?->role !== 'Admin') {
-            abort(403, 'Akses terbatas untuk Administrator.');
+        if (!auth()->user()?->can('users.view') && !auth()->user()?->can('users.manage')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk melihat daftar pengguna.');
+        }
+    }
+
+    /**
+     * Check if the authenticated user has permission to manage users.
+     */
+    protected function checkManagePermission(): void
+    {
+        if (!auth()->user()?->can('users.manage')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk mengelola pengguna.');
         }
     }
 
@@ -27,7 +37,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $this->checkAdmin();
+        $this->checkViewPermission();
 
         $roles = Role::orderBy('name')->get();
 
@@ -39,7 +49,7 @@ class UserController extends Controller
      */
     public function data(Request $request): JsonResponse
     {
-        $this->checkAdmin();
+        $this->checkViewPermission();
 
         $users = User::query()->select(['id', 'name', 'username', 'email', 'role', 'is_active', 'created_at']);
 
@@ -63,6 +73,10 @@ class UserController extends Controller
                 return '<span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Nonaktif</span>';
             })
             ->addColumn('action', function ($user) {
+                if (!auth()->user()?->can('users.manage')) {
+                    return '<span class="badge bg-light text-muted border">Hanya Lihat</span>';
+                }
+
                 $isSelf = auth()->id() === $user->id;
 
                 $btnEdit = '<button type="button" class="btn btn-sm btn-warning btn-edit text-white me-1" 
@@ -120,7 +134,7 @@ class UserController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $this->checkAdmin();
+        $this->checkManagePermission();
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -165,7 +179,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user): JsonResponse
     {
-        $this->checkAdmin();
+        $this->checkManagePermission();
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -205,7 +219,7 @@ class UserController extends Controller
      */
     public function destroy(User $user): JsonResponse
     {
-        $this->checkAdmin();
+        $this->checkManagePermission();
 
         if (auth()->id() === $user->id) {
             return response()->json([
@@ -227,7 +241,7 @@ class UserController extends Controller
      */
     public function toggleStatus(User $user): JsonResponse
     {
-        $this->checkAdmin();
+        $this->checkManagePermission();
 
         if (auth()->id() === $user->id) {
             return response()->json([
@@ -253,7 +267,7 @@ class UserController extends Controller
      */
     public function resetPassword(Request $request, User $user): JsonResponse
     {
-        $this->checkAdmin();
+        $this->checkManagePermission();
 
         $validated = $request->validate([
             'new_password' => ['required', 'string', 'min:6'],

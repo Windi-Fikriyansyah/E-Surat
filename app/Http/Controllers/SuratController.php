@@ -16,6 +16,10 @@ class SuratController extends Controller
      */
     public function index(Request $request)
     {
+        if (!auth()->user()?->can('surat-masuk.view') && !auth()->user()?->can('surat-keluar.view')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk melihat data surat.');
+        }
+
         $defaultJenis = $request->query('jenis', '');
 
         return view('surat.index', compact('defaultJenis'));
@@ -107,8 +111,19 @@ class SuratController extends Controller
                 'users.name as creator_name',
             ]);
 
+        $user = auth()->user();
+        $canViewMasuk = $user?->can('surat-masuk.view');
+        $canViewKeluar = $user?->can('surat-keluar.view');
+
         return DataTables::of($query)
-            ->filter(function ($query) use ($request) {
+            ->filter(function ($query) use ($request, $canViewMasuk, $canViewKeluar) {
+                // Filter permission: batasi jenis surat jika hanya diizinkan salah satu
+                if ($canViewMasuk && !$canViewKeluar) {
+                    $query->where('surat.jenis_surat', 'Masuk');
+                } elseif (!$canViewMasuk && $canViewKeluar) {
+                    $query->where('surat.jenis_surat', 'Keluar');
+                }
+
                 // Global search dari DataTables
                 if ($request->filled('search.value')) {
                     $search = $request->input('search.value');
@@ -223,31 +238,46 @@ class SuratController extends Controller
 
                 return '<span class="text-muted small"><i class="bi bi-dash-circle me-1"></i>Tidak ada</span>';
             })
-            ->addColumn('action', function ($row) {
+            ->addColumn('action', function ($row) use ($user) {
+                $isMasuk = $row->jenis_surat === 'Masuk';
+                $canEdit = $isMasuk 
+                    ? ($user?->can('surat-masuk.edit') || $user?->can('surat-masuk.disposisi')) 
+                    : $user?->can('surat-keluar.edit');
+                $canDelete = $isMasuk 
+                    ? $user?->can('surat-masuk.delete') 
+                    : $user?->can('surat-keluar.delete');
+                $canCetak = !$isMasuk && $user?->can('surat-keluar.cetak');
+
                 $btnDetail = '<button type="button" class="btn btn-sm btn-info text-dark btn-detail me-1" 
                                 data-id="' . $row->id . '" title="Lihat Detail">
                                 <i class="bi bi-eye-fill"></i>
                               </button>';
 
                 $btnCetak = '';
-                if ($row->jenis_surat === 'Keluar') {
+                if ($canCetak) {
                     $btnCetak = '<a href="' . route('surat.cetak', $row->id) . '" target="_blank" class="btn btn-sm btn-secondary me-1" title="Cetak Surat Resmi">
                                     <i class="bi bi-printer-fill"></i>
                                  </a>';
                 }
 
-                $btnEdit = '<button type="button" class="btn btn-sm btn-warning text-white btn-edit me-1" 
-                                data-id="' . $row->id . '" title="Edit Surat">
-                                <i class="bi bi-pencil-square"></i>
-                            </button>';
+                $btnEdit = '';
+                if ($canEdit) {
+                    $btnEdit = '<button type="button" class="btn btn-sm btn-warning text-white btn-edit me-1" 
+                                    data-id="' . $row->id . '" title="Edit Surat">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>';
+                }
 
-                $btnDelete = '<button type="button" class="btn btn-sm btn-danger btn-delete" 
-                                data-id="' . $row->id . '" 
-                                data-nomor="' . e($row->nomor_surat) . '" 
-                                data-jenis="' . e($row->jenis_surat) . '" 
-                                title="Hapus Surat">
-                                <i class="bi bi-trash-fill"></i>
-                              </button>';
+                $btnDelete = '';
+                if ($canDelete) {
+                    $btnDelete = '<button type="button" class="btn btn-sm btn-danger btn-delete" 
+                                    data-id="' . $row->id . '" 
+                                    data-nomor="' . e($row->nomor_surat) . '" 
+                                    data-jenis="' . e($row->jenis_surat) . '" 
+                                    title="Hapus Surat">
+                                    <i class="bi bi-trash-fill"></i>
+                                  </button>';
+                }
 
                 return '<div class="d-flex align-items-center">' . $btnDetail . $btnCetak . $btnEdit . $btnDelete . '</div>';
             })
@@ -276,6 +306,20 @@ class SuratController extends Controller
             ], 404);
         }
 
+        if ($surat->jenis_surat === 'Masuk' && !auth()->user()?->can('surat-masuk.view')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses terbatas. Anda tidak memiliki izin untuk melihat detail surat masuk.',
+            ], 403);
+        }
+
+        if ($surat->jenis_surat === 'Keluar' && !auth()->user()?->can('surat-keluar.view')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses terbatas. Anda tidak memiliki izin untuk melihat detail surat keluar.',
+            ], 403);
+        }
+
         $fileUrl = null;
         $fileSize = null;
         $fileExt = null;
@@ -301,6 +345,22 @@ class SuratController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        if ($request->input('jenis_surat') === 'Masuk') {
+            if (!auth()->user()?->can('surat-masuk.create')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Akses terbatas. Anda tidak memiliki izin untuk menambah surat masuk.'
+                ], 403);
+            }
+        } elseif ($request->input('jenis_surat') === 'Keluar') {
+            if (!auth()->user()?->can('surat-keluar.create')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Akses terbatas. Anda tidak memiliki izin untuk membuat surat keluar.'
+                ], 403);
+            }
+        }
+
         $validated = $request->validate([
             'jenis_surat' => ['required', Rule::in(['Masuk', 'Keluar'])],
             'nomor_surat' => ['required', 'string', 'max:255', 'unique:surat,nomor_surat'],
@@ -408,6 +468,20 @@ class SuratController extends Controller
                 'success' => false,
                 'message' => 'Data surat tidak ditemukan.',
             ], 404);
+        }
+
+        if ($surat->jenis_surat === 'Masuk' && !auth()->user()?->can('surat-masuk.edit') && !auth()->user()?->can('surat-masuk.disposisi')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses terbatas. Anda tidak memiliki izin untuk mengubah surat masuk ini.',
+            ], 403);
+        }
+
+        if ($surat->jenis_surat === 'Keluar' && !auth()->user()?->can('surat-keluar.edit')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses terbatas. Anda tidak memiliki izin untuk mengubah surat keluar.',
+            ], 403);
         }
 
         $validated = $request->validate([
@@ -528,6 +602,10 @@ class SuratController extends Controller
             abort(404, 'Data surat tidak ditemukan.');
         }
 
+        if (!auth()->user()?->can('surat-keluar.cetak')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk mencetak surat.');
+        }
+
         return view('surat.cetak', compact('surat'));
     }
 
@@ -542,6 +620,20 @@ class SuratController extends Controller
                 'success' => false,
                 'message' => 'Data surat tidak ditemukan.',
             ], 404);
+        }
+
+        if ($surat->jenis_surat === 'Masuk' && !auth()->user()?->can('surat-masuk.delete')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses terbatas. Anda tidak memiliki izin untuk menghapus surat masuk.',
+            ], 403);
+        }
+
+        if ($surat->jenis_surat === 'Keluar' && !auth()->user()?->can('surat-keluar.delete')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses terbatas. Anda tidak memiliki izin untuk menghapus surat keluar.',
+            ], 403);
         }
 
         // Hapus file arsip fisik jika ada
@@ -567,6 +659,14 @@ class SuratController extends Controller
             abort(404, 'File arsip surat tidak ditemukan.');
         }
 
+        if ($surat->jenis_surat === 'Masuk' && !auth()->user()?->can('surat-masuk.view')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk melihat arsip surat masuk.');
+        }
+
+        if ($surat->jenis_surat === 'Keluar' && !auth()->user()?->can('surat-keluar.view')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk melihat arsip surat keluar.');
+        }
+
         return Storage::disk('public')->response($surat->file_arsip);
     }
 
@@ -578,6 +678,14 @@ class SuratController extends Controller
         $surat = DB::table('surat')->where('id', $id)->first();
         if (! $surat || ! $surat->file_arsip || ! Storage::disk('public')->exists($surat->file_arsip)) {
             abort(404, 'File arsip surat tidak ditemukan.');
+        }
+
+        if ($surat->jenis_surat === 'Masuk' && !auth()->user()?->can('surat-masuk.view')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk mengunduh arsip surat masuk.');
+        }
+
+        if ($surat->jenis_surat === 'Keluar' && !auth()->user()?->can('surat-keluar.view')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk mengunduh arsip surat keluar.');
         }
 
         $ext = pathinfo($surat->file_arsip, PATHINFO_EXTENSION);

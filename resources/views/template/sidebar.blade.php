@@ -50,36 +50,41 @@
                     </a>
                 </li>
 
+                @canany(['surat-masuk.view', 'surat-keluar.view'])
                 <li class="sidebar-item {{ request()->routeIs('surat.*') ? 'active' : '' }}">
                     <a href="{{ route('surat.index') }}" class='sidebar-link'>
                         <i class="bi bi-envelope-fill"></i>
                         <span>Surat</span>
                     </a>
                 </li>
+                @endcanany
 
+                @can('laporan.view')
                 <li class="sidebar-item {{ request()->routeIs('laporan.*') ? 'active' : '' }}">
                     <a href="{{ route('laporan.index') }}" class='sidebar-link'>
                         <i class="bi bi-file-earmark-bar-graph-fill"></i>
                         <span>Laporan</span>
                     </a>
                 </li>
+                @endcan
 
-                
-                @if (Auth::user() && (Auth::user()->role === 'Admin' || (method_exists(Auth::user(), 'hasRole') && Auth::user()->hasRole('Admin'))))
+                @canany(['users.view', 'users.manage'])
                 <li class="sidebar-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
                     <a href="{{ route('users.index') }}" class='sidebar-link'>
                         <i class="bi bi-people-fill"></i>
                         <span>Manajemen Pengguna</span>
                     </a>
                 </li>
+                @endcanany
 
+                @canany(['roles.view', 'roles.manage'])
                 <li class="sidebar-item {{ request()->routeIs('roles.*') ? 'active' : '' }}">
                     <a href="{{ route('roles.index') }}" class='sidebar-link'>
                         <i class="bi bi-shield-lock-fill"></i>
                         <span>Manajemen Role</span>
                     </a>
                 </li>
-                @endif
+                @endcanany
 
                 <li class="sidebar-item">
                     <form method="POST" action="{{ route('logout') }}">
