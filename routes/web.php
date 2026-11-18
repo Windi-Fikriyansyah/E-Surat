@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SuratController;
 use App\Http\Controllers\UserController;
@@ -45,13 +46,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/cetak', [SuratController::class, 'cetak'])->name('cetak');
     });
 
-    // Alias / redirect untuk kemudahan navigasi
-    Route::get('/surat-masuk', function () {
-        return redirect()->route('surat.index', ['jenis' => 'Masuk']);
+    // Menu & Fitur Laporan
+    Route::prefix('laporan')->name('laporan.')->group(function () {
+        Route::get('/', [LaporanController::class, 'index'])->name('index');
+        Route::get('/cetak', [LaporanController::class, 'cetak'])->name('cetak');
+        Route::get('/pdf', [LaporanController::class, 'exportPdf'])->name('pdf');
+        Route::get('/excel', [LaporanController::class, 'exportExcel'])->name('excel');
     });
-    Route::get('/surat-keluar', function () {
-        return redirect()->route('surat.index', ['jenis' => 'Keluar']);
-    });
+
+    
 });
 
 require __DIR__.'/auth.php';

@@ -57,6 +57,13 @@
                     </a>
                 </li>
 
+                <li class="sidebar-item {{ request()->routeIs('laporan.*') ? 'active' : '' }}">
+                    <a href="{{ route('laporan.index') }}" class='sidebar-link'>
+                        <i class="bi bi-file-earmark-bar-graph-fill"></i>
+                        <span>Laporan</span>
+                    </a>
+                </li>
+
                 
                 @if (Auth::user() && Auth::user()->role === 'Admin')
                 <li class="sidebar-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
