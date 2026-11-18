@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [SuratController::class, 'destroy'])->name('destroy');
         Route::get('/{id}/preview', [SuratController::class, 'preview'])->name('preview');
         Route::get('/{id}/download', [SuratController::class, 'download'])->name('download');
+        Route::get('/{id}/cetak', [SuratController::class, 'cetak'])->name('cetak');
     });
 
     // Alias / redirect untuk kemudahan navigasi

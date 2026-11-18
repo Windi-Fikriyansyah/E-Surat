@@ -50,10 +50,10 @@
                     </a>
                 </li>
 
-                <li class="sidebar-item {{ request()->routeIs('surat.*') && request('jenis') !== 'Keluar' ? 'active' : '' }}">
-                    <a href="{{ route('surat.index', ['jenis' => 'Masuk']) }}" class='sidebar-link'>
-                        <i class="bi bi-envelope-arrow-down-fill"></i>
-                        <span>Surat Masuk</span>
+                <li class="sidebar-item {{ request()->routeIs('surat.*') ? 'active' : '' }}">
+                    <a href="{{ route('surat.index') }}" class='sidebar-link'>
+                        <i class="bi bi-envelope-fill"></i>
+                        <span>Surat</span>
                     </a>
                 </li>
 

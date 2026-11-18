@@ -148,6 +148,13 @@ class SuratController extends Controller
                                 <i class="bi bi-eye-fill"></i>
                               </button>';
 
+                $btnCetak = '';
+                if ($row->jenis_surat === 'Keluar') {
+                    $btnCetak = '<a href="' . route('surat.cetak', $row->id) . '" target="_blank" class="btn btn-sm btn-secondary me-1" title="Cetak Surat Resmi">
+                                    <i class="bi bi-printer-fill"></i>
+                                 </a>';
+                }
+
                 $btnEdit = '<button type="button" class="btn btn-sm btn-warning text-white btn-edit me-1" 
                                 data-id="' . $row->id . '" title="Edit Surat">
                                 <i class="bi bi-pencil-square"></i>
@@ -161,7 +168,7 @@ class SuratController extends Controller
                                 <i class="bi bi-trash-fill"></i>
                               </button>';
 
-                return '<div class="d-flex align-items-center">' . $btnDetail . $btnEdit . $btnDelete . '</div>';
+                return '<div class="d-flex align-items-center">' . $btnDetail . $btnCetak . $btnEdit . $btnDelete . '</div>';
             })
             ->rawColumns(['jenis_badge', 'tujuan_display', 'status_badge', 'file_badge', 'action'])
             ->make(true);
@@ -243,7 +250,19 @@ class SuratController extends Controller
         ]);
 
         $filePath = null;
-        if ($request->hasFile('file_arsip')) {
+        if ($validated['jenis_surat'] === 'Keluar' && $request->filled('generated_image')) {
+            $imageData = $request->input('generated_image');
+            if (preg_match('/^data:image\/(\w+);base64,/', $imageData)) {
+                $imageData = substr($imageData, strpos($imageData, ',') + 1);
+            }
+            $decoded = base64_decode($imageData);
+            if ($decoded !== false) {
+                $cleanNomor = preg_replace('/[^a-zA-Z0-9_-]/', '_', $validated['nomor_surat']);
+                $fileName = time() . '_Surat_Keluar_' . $cleanNomor . '.png';
+                $filePath = 'surat_keluar/' . $fileName;
+                Storage::disk('public')->put($filePath, $decoded);
+            }
+        } elseif ($request->hasFile('file_arsip')) {
             $file = $request->file('file_arsip');
             $folder = $validated['jenis_surat'] === 'Keluar' ? 'surat_keluar' : 'surat_masuk';
             $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
@@ -273,6 +292,11 @@ class SuratController extends Controller
             'success' => true,
             'message' => "{$label} berhasil ditambahkan.",
             'id' => $id,
+            'file_url' => $filePath ? route('surat.preview', $id) : null,
+            'download_url' => $filePath ? route('surat.download', $id) : null,
+            'cetak_url' => route('surat.cetak', $id),
+            'jenis_surat' => $validated['jenis_surat'],
+            'nomor_surat' => $validated['nomor_surat'],
         ]);
     }
 
@@ -319,7 +343,22 @@ class SuratController extends Controller
         ]);
 
         $filePath = $surat->file_arsip;
-        if ($request->hasFile('file_arsip')) {
+        if ($validated['jenis_surat'] === 'Keluar' && $request->filled('generated_image')) {
+            if ($surat->file_arsip && Storage::disk('public')->exists($surat->file_arsip)) {
+                Storage::disk('public')->delete($surat->file_arsip);
+            }
+            $imageData = $request->input('generated_image');
+            if (preg_match('/^data:image\/(\w+);base64,/', $imageData)) {
+                $imageData = substr($imageData, strpos($imageData, ',') + 1);
+            }
+            $decoded = base64_decode($imageData);
+            if ($decoded !== false) {
+                $cleanNomor = preg_replace('/[^a-zA-Z0-9_-]/', '_', $validated['nomor_surat']);
+                $fileName = time() . '_Surat_Keluar_' . $cleanNomor . '.png';
+                $filePath = 'surat_keluar/' . $fileName;
+                Storage::disk('public')->put($filePath, $decoded);
+            }
+        } elseif ($request->hasFile('file_arsip')) {
             // Hapus file lama jika ada
             if ($surat->file_arsip && Storage::disk('public')->exists($surat->file_arsip)) {
                 Storage::disk('public')->delete($surat->file_arsip);
@@ -351,7 +390,26 @@ class SuratController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Data {$label} berhasil diperbarui.",
+            'id' => $id,
+            'file_url' => $filePath ? route('surat.preview', $id) : null,
+            'download_url' => $filePath ? route('surat.download', $id) : null,
+            'cetak_url' => route('surat.cetak', $id),
+            'jenis_surat' => $validated['jenis_surat'],
+            'nomor_surat' => $validated['nomor_surat'],
         ]);
+    }
+
+    /**
+     * Tampilan cetak surat resmi format A4 (khusus surat keluar atau cetak langsung).
+     */
+    public function cetak($id)
+    {
+        $surat = DB::table('surat')->where('id', $id)->first();
+        if (! $surat) {
+            abort(404, 'Data surat tidak ditemukan.');
+        }
+
+        return view('surat.cetak', compact('surat'));
     }
 
     /**
