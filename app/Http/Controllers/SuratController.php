@@ -310,14 +310,17 @@ class SuratController extends Controller
             ], 404);
         }
 
-        if ($surat->jenis_surat === 'Masuk' && !auth()->user()?->can('surat-masuk.view')) {
+        $user = auth()->user();
+        $isRecipient = ($surat->tujuan_user_id && $surat->tujuan_user_id == $user?->id);
+
+        if ($surat->jenis_surat === 'Masuk' && ! $user?->can('surat-masuk.view') && ! $isRecipient) {
             return response()->json([
                 'success' => false,
                 'message' => 'Akses terbatas. Anda tidak memiliki izin untuk melihat detail surat masuk.',
             ], 403);
         }
 
-        if ($surat->jenis_surat === 'Keluar' && !auth()->user()?->can('surat-keluar.view')) {
+        if ($surat->jenis_surat === 'Keluar' && ! $user?->can('surat-keluar.view')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Akses terbatas. Anda tidak memiliki izin untuk melihat detail surat keluar.',
@@ -342,6 +345,91 @@ class SuratController extends Controller
             'file_ext' => $fileExt,
             'download_url' => $surat->file_arsip ? route('surat.download', $surat->id) : null,
         ]);
+    }
+
+    /**
+     * Halaman tersendiri untuk melihat detail lengkap surat (dari notifikasi email / web).
+     */
+    public function detail($id)
+    {
+        $surat = DB::table('surat')
+            ->leftJoin('users as creator', 'surat.user_id', '=', 'creator.id')
+            ->leftJoin('users as recipient', 'surat.tujuan_user_id', '=', 'recipient.id')
+            ->where('surat.id', $id)
+            ->select([
+                'surat.*',
+                'creator.name as creator_name',
+                'recipient.name as recipient_name',
+                'recipient.role as recipient_role',
+            ])
+            ->first();
+
+        if (! $surat) {
+            abort(404, 'Data surat tidak ditemukan.');
+        }
+
+        $user = auth()->user();
+        $isRecipient = ($surat->tujuan_user_id && $surat->tujuan_user_id == $user?->id);
+
+        if ($surat->jenis_surat === 'Masuk' && ! $user?->can('surat-masuk.view') && ! $isRecipient) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk melihat detail surat masuk ini.');
+        }
+
+        if ($surat->jenis_surat === 'Keluar' && ! $user?->can('surat-keluar.view')) {
+            abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk melihat detail surat keluar ini.');
+        }
+
+        // Tandai notifikasi terkait surat ini sebagai dibaca secara otomatis (kompatibel dengan MySQL 5.5 tanpa fungsi JSON SQL)
+        if ($user) {
+            foreach ($user->unreadNotifications as $notification) {
+                if (isset($notification->data['surat_id']) && $notification->data['surat_id'] == $surat->id) {
+                    $notification->markAsRead();
+                }
+            }
+        }
+
+        $fileUrl = null;
+        $fileSize = null;
+        $fileExt = null;
+        if ($surat->file_arsip && Storage::disk('public')->exists($surat->file_arsip)) {
+            $fileUrl = route('surat.preview', $surat->id);
+            $bytes = Storage::disk('public')->size($surat->file_arsip);
+            $fileSize = $this->formatBytes($bytes);
+            $fileExt = strtolower(pathinfo($surat->file_arsip, PATHINFO_EXTENSION));
+        }
+
+        $canUpdateStatus = ($surat->jenis_surat === 'Masuk') && ($user?->can('surat-masuk.disposisi') || $user?->can('surat-masuk.edit') || $isRecipient);
+
+        return view('surat.detail', compact('surat', 'fileUrl', 'fileSize', 'fileExt', 'isRecipient', 'canUpdateStatus'));
+    }
+
+    /**
+     * Pembaruan status disposisi langsung dari halaman detail surat.
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $surat = DB::table('surat')->where('id', $id)->first();
+        if (! $surat) {
+            return back()->with('error', 'Data surat tidak ditemukan.');
+        }
+
+        $user = auth()->user();
+        $isRecipient = ($surat->tujuan_user_id && $surat->tujuan_user_id == $user?->id);
+
+        if (! $user?->can('surat-masuk.disposisi') && ! $user?->can('surat-masuk.edit') && ! $isRecipient) {
+            return back()->with('error', 'Akses terbatas. Anda tidak memiliki izin untuk memperbarui status surat ini.');
+        }
+
+        $validated = $request->validate([
+            'status_disposisi' => ['required', Rule::in(['Belum Didisposisikan', 'Sudah Didisposisikan', 'Selesai'])],
+        ]);
+
+        DB::table('surat')->where('id', $id)->update([
+            'status_disposisi' => $validated['status_disposisi'],
+            'updated_at' => now(),
+        ]);
+
+        return back()->with('success', 'Status disposisi berhasil diperbarui menjadi "' . $validated['status_disposisi'] . '".');
     }
 
     /**
@@ -733,11 +821,14 @@ class SuratController extends Controller
             abort(404, 'File arsip surat tidak ditemukan.');
         }
 
-        if ($surat->jenis_surat === 'Masuk' && !auth()->user()?->can('surat-masuk.view')) {
+        $user = auth()->user();
+        $isRecipient = ($surat->tujuan_user_id && $surat->tujuan_user_id == $user?->id);
+
+        if ($surat->jenis_surat === 'Masuk' && ! $user?->can('surat-masuk.view') && ! $isRecipient) {
             abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk melihat arsip surat masuk.');
         }
 
-        if ($surat->jenis_surat === 'Keluar' && !auth()->user()?->can('surat-keluar.view')) {
+        if ($surat->jenis_surat === 'Keluar' && ! $user?->can('surat-keluar.view')) {
             abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk melihat arsip surat keluar.');
         }
 
@@ -754,11 +845,14 @@ class SuratController extends Controller
             abort(404, 'File arsip surat tidak ditemukan.');
         }
 
-        if ($surat->jenis_surat === 'Masuk' && !auth()->user()?->can('surat-masuk.view')) {
+        $user = auth()->user();
+        $isRecipient = ($surat->tujuan_user_id && $surat->tujuan_user_id == $user?->id);
+
+        if ($surat->jenis_surat === 'Masuk' && ! $user?->can('surat-masuk.view') && ! $isRecipient) {
             abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk mengunduh arsip surat masuk.');
         }
 
-        if ($surat->jenis_surat === 'Keluar' && !auth()->user()?->can('surat-keluar.view')) {
+        if ($surat->jenis_surat === 'Keluar' && ! $user?->can('surat-keluar.view')) {
             abort(403, 'Akses terbatas. Anda tidak memiliki izin untuk mengunduh arsip surat keluar.');
         }
 

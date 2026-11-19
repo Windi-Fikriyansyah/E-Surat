@@ -50,6 +50,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/next-nomor-keluar', [SuratController::class, 'getNextNomorKeluar'])->name('next-nomor-keluar');
         Route::post('/', [SuratController::class, 'store'])->name('store');
         Route::get('/{id}', [SuratController::class, 'show'])->name('show');
+        Route::get('/{id}/detail', [SuratController::class, 'detail'])->name('detail');
+        Route::post('/{id}/update-status', [SuratController::class, 'updateStatus'])->name('update-status');
         Route::post('/{id}/update', [SuratController::class, 'update'])->name('update');
         Route::delete('/{id}', [SuratController::class, 'destroy'])->name('destroy');
         Route::get('/{id}/preview', [SuratController::class, 'preview'])->name('preview');

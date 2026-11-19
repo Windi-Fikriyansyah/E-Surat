@@ -16,6 +16,10 @@ class NotificationController extends Controller
 
         if ($notification) {
             $notification->markAsRead();
+            $suratId = $notification->data['surat_id'] ?? null;
+            if ($suratId) {
+                return redirect()->route('surat.detail', $suratId);
+            }
             $url = $notification->data['url'] ?? route('surat.index');
             return redirect($url);
         }

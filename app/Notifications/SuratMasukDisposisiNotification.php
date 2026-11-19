@@ -36,7 +36,7 @@ class SuratMasukDisposisiNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $noAgendaText = $this->surat->no_agenda ? " (No. Agenda: #{$this->surat->no_agenda})" : '';
-        $url = route('surat.index', ['search' => $this->surat->nomor_surat]);
+        $url = route('surat.detail', $this->surat->id);
 
         return (new MailMessage)
             ->subject('Pemberitahuan Surat Masuk: ' . $this->surat->nomor_surat)
@@ -46,7 +46,7 @@ class SuratMasukDisposisiNotification extends Notification
             ->line('• Asal / Pengirim: ' . ($this->surat->asal_surat ?? '-'))
             ->line('• Perihal: ' . $this->surat->perihal)
             ->line('• Tanggal Surat: ' . date('d/m/Y', strtotime($this->surat->tanggal_surat)))
-            ->action('Buka & Lihat Surat', $url)
+            ->action('Buka & Lihat Detail Surat', $url)
             ->line('Silakan login ke aplikasi E-SURAT untuk menindaklanjuti disposisi surat tersebut.')
             ->salutation('Salam hormat,' . "\n" . config('app.name', 'E-SURAT SMK Negeri 1 Sadaniang'));
     }
@@ -66,7 +66,7 @@ class SuratMasukDisposisiNotification extends Notification
             'asal_surat' => $this->surat->asal_surat ?? '-',
             'title' => 'Surat Masuk Baru Ditujukan Kepada Anda',
             'message' => 'Surat no. ' . $this->surat->nomor_surat . ' dari ' . ($this->surat->asal_surat ?? '-') . ' telah ditujukan kepada Anda.',
-            'url' => route('surat.index', ['search' => $this->surat->nomor_surat]),
+            'url' => route('surat.detail', $this->surat->id),
             'created_at' => now()->toIso8601String(),
         ];
     }

@@ -1571,10 +1571,11 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                     }
                     $('#detail_creator').text(s.creator_name ? s.creator_name + ' (pada ' + s.created_at + ')' : '-');
 
-                    let footerActions = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>';
+                    let footerActions = '<a href="{{ url("surat") }}/' + s.id + '/detail" class="btn btn-outline-info me-auto"><i class="bi bi-box-arrow-up-right me-1"></i> Buka Halaman Penuh</a>';
                     if (!isMasuk) {
-                        footerActions = '<a href="{{ url("surat") }}/' + s.id + '/cetak" target="_blank" class="btn btn-outline-primary"><i class="bi bi-printer me-1"></i> Cetak / Unduh Dokumen</a>' + footerActions;
+                        footerActions += '<a href="{{ url("surat") }}/' + s.id + '/cetak" target="_blank" class="btn btn-outline-primary me-2"><i class="bi bi-printer me-1"></i> Cetak / Unduh Dokumen</a>';
                     }
+                    footerActions += '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>';
                     $('#modalDetailFooter').html(footerActions);
 
                     if (res.file_url) {
