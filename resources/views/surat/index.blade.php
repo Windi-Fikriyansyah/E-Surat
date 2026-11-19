@@ -729,12 +729,12 @@
 <div id="suratOffscreenWrapper" style="position: absolute; left: -9999px; top: 0; width: 210mm; z-index: -9999; background: #ffffff;">
     <div id="suratRenderElement" style="width: 210mm; min-height: 297mm; padding: 16mm 22mm 20mm 22mm; background: #ffffff; font-family: 'Times New Roman', Times, serif !important; color: #000000 !important; font-size: 12pt; line-height: 1.5; box-sizing: border-box; position: relative;">
         <!-- KOP SURAT -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 4px;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 2px;">
             <tr>
                 <td style="width: 80px; text-align: left; vertical-align: middle;">
                     <img src="{{ asset('assets/surat/logo_kalbar.png') }}" style="width: 78px; height: auto; display: block;" alt="Logo Pemprov Kalbar">
                 </td>
-                <td style="text-align: center; padding: 0 10px; vertical-align: middle;">
+                <td style="text-align: center; padding: 0 10px 0px 10px; vertical-align: bottom !important;">
                     <h4 style="margin: 0 !important; font-size: 14.5px !important; font-weight: normal !important; letter-spacing: 0.5px !important; text-transform: uppercase !important; line-height: 1.1 !important; color: #000000 !important; font-family: 'Times New Roman', Times, serif !important;">PEMERINTAH PROVINSI KALIMANTAN BARAT</h4>
                     <h2 style="margin: 1px 0 2px 0 !important; font-size: 19.5px !important; font-weight: 800 !important; letter-spacing: 0.8px !important; text-transform: uppercase !important; line-height: 1.1 !important; color: #000000 !important; font-family: 'Times New Roman', Times, serif !important;">SMK NEGERI 1 SADANIANG</h2>
                     <p style="margin: 0 !important; padding: 0 !important; font-size: 12px !important; line-height: 1.15 !important; color: #000000 !important; font-family: 'Times New Roman', Times, serif !important;">Jalan Raya Pudak, Provinsi Kalimantan Barat, Kode Pos 78361</p>
@@ -747,7 +747,7 @@
         </table>
         
         <!-- GARIS GANDA KOP -->
-        <div style="border-top: 3.5px solid #000000; border-bottom: 1.2px solid #000000; height: 2px; margin: 6px 0 18px 0;"></div>
+        <div style="border-top: 3.5px solid #000000; border-bottom: 1.2px solid #000000; height: 2px; margin: 3px 0 18px 0;"></div>
 
         <!-- TANGGAL SURAT -->
         <div id="render_surat_tanggal" style="text-align: right; margin-bottom: 16px; font-size: 13.5px;">

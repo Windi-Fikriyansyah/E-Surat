@@ -39,10 +39,11 @@
             width: 85px;
             height: auto;
         }
+        .kop-table td.kop-text,
         .kop-text {
             text-align: center;
-            padding: 0 10px;
-            vertical-align: middle;
+            padding: 0 10px 0px 10px;
+            vertical-align: bottom !important;
         }
         .kop-text h4 {
             margin: 0;
@@ -70,7 +71,7 @@
             border-top: 3px solid #000;
             border-bottom: 1px solid #000;
             height: 2px;
-            margin: 4px 0 14px 0;
+            margin: 2px 0 14px 0;
         }
 
         /* JUDUL LAPORAN */
