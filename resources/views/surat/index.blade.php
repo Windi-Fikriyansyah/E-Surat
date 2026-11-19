@@ -266,8 +266,39 @@
                         </div>
                     </div>
 
-                    <!-- Bagian Khusus Surat Keluar: Isi Pengantar, Rincian Kegiatan, & Penutup -->
-                    <div class="field-keluar-only d-none">
+                    <!-- Pilihan Metode Surat Keluar (Buat Otomatis vs Upload File) -->
+                    <div class="field-keluar-only d-none mb-3">
+                        <label class="form-label fw-bold d-block mb-2">Pilihan Pembuatan Surat Keluar <span class="text-danger">*</span></label>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <input type="radio" class="btn-check create-metode-keluar-radio" name="metode_surat_keluar" id="create_metode_otomatis" value="otomatis" checked>
+                                <label class="btn btn-outline-primary w-100 text-start p-2 h-100" for="create_metode_otomatis">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-magic fs-3 me-2 text-primary"></i>
+                                        <div>
+                                            <strong class="d-block">Buat Otomatis</strong>
+                                            <small class="text-muted" style="font-size: 11px;">Format resmi ber-kop otomatis dari sistem</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="radio" class="btn-check create-metode-keluar-radio" name="metode_surat_keluar" id="create_metode_upload" value="upload">
+                                <label class="btn btn-outline-primary w-100 text-start p-2 h-100" for="create_metode_upload">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-cloud-arrow-up-fill fs-3 me-2 text-success"></i>
+                                        <div>
+                                            <strong class="d-block">Upload File Berkas</strong>
+                                            <small class="text-muted" style="font-size: 11px;">Unggah dokumen scan / berkas (PDF, JPG, PNG)</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bagian Khusus Surat Keluar - Metode Buat Otomatis -->
+                    <div class="field-keluar-only d-none" id="wrapper_create_keluar_otomatis">
                         <div class="mb-3">
                             <label for="create_isi_surat" class="form-label fw-bold">Isi Surat / Pengantar <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="create_isi_surat" name="isi_surat" rows="3" placeholder="Paragraf pengantar / pembuka sebelum rincian pelaksanaan kegiatan..."></textarea>
@@ -303,6 +334,21 @@
                         <div class="mb-3">
                             <label for="create_penutup" class="form-label fw-bold">Paragraf Penutup Surat</label>
                             <textarea class="form-control" id="create_penutup" name="penutup" rows="3" placeholder="Paragraf penutup surat..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Bagian Khusus Surat Keluar - Metode Upload File -->
+                    <div class="field-keluar-only d-none" id="wrapper_create_keluar_upload">
+                        <div class="mb-3">
+                            <label for="create_file_arsip_keluar" class="form-label fw-bold">Upload Berkas Arsip Surat Keluar (PDF, JPG, PNG) <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="create_file_arsip_keluar" name="file_arsip" accept=".pdf,.jpg,.jpeg,.png">
+                            <small class="text-muted d-block mt-1">Maksimal ukuran file: 10 MB. Format: PDF, JPG, JPEG, PNG.</small>
+                            <div class="invalid-feedback" id="error_create_file_arsip_keluar"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="create_keterangan_keluar" class="form-label">Keterangan / Catatan Tambahan (Opsional)</label>
+                            <textarea class="form-control" id="create_keterangan_keluar" name="keterangan" rows="3" placeholder="Catatan tambahan mengenai surat keluar ini..."></textarea>
                         </div>
                     </div>
 
@@ -471,8 +517,39 @@
                         </div>
                     </div>
 
-                    <!-- Bagian Khusus Surat Keluar: Isi Pengantar, Rincian Kegiatan, & Penutup (Edit) -->
-                    <div class="field-edit-keluar-only d-none">
+                    <!-- Pilihan Metode Surat Keluar Edit (Buat Otomatis vs Upload File) -->
+                    <div class="field-edit-keluar-only d-none mb-3">
+                        <label class="form-label fw-bold d-block mb-2">Pilihan Pembuatan Surat Keluar <span class="text-danger">*</span></label>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <input type="radio" class="btn-check edit-metode-keluar-radio" name="edit_metode_surat_keluar" id="edit_metode_otomatis" value="otomatis" checked>
+                                <label class="btn btn-outline-primary w-100 text-start p-2 h-100" for="edit_metode_otomatis">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-magic fs-3 me-2 text-primary"></i>
+                                        <div>
+                                            <strong class="d-block">Buat Otomatis</strong>
+                                            <small class="text-muted" style="font-size: 11px;">Format resmi ber-kop otomatis dari sistem</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="radio" class="btn-check edit-metode-keluar-radio" name="edit_metode_surat_keluar" id="edit_metode_upload" value="upload">
+                                <label class="btn btn-outline-primary w-100 text-start p-2 h-100" for="edit_metode_upload">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-cloud-arrow-up-fill fs-3 me-2 text-success"></i>
+                                        <div>
+                                            <strong class="d-block">Upload File Berkas</strong>
+                                            <small class="text-muted" style="font-size: 11px;">Unggah dokumen scan / berkas (PDF, JPG, PNG)</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bagian Khusus Surat Keluar Edit - Metode Buat Otomatis -->
+                    <div class="field-edit-keluar-only d-none" id="wrapper_edit_keluar_otomatis">
                         <div class="mb-3">
                             <label for="edit_isi_surat" class="form-label fw-bold">Isi Surat / Pengantar <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="edit_isi_surat" name="isi_surat" rows="3" placeholder="Paragraf pengantar / pembuka sebelum rincian pelaksanaan kegiatan..."></textarea>
@@ -508,6 +585,22 @@
                         <div class="mb-3">
                             <label for="edit_penutup" class="form-label fw-bold">Paragraf Penutup Surat</label>
                             <textarea class="form-control" id="edit_penutup" name="penutup" rows="3" placeholder="Paragraf penutup surat..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Bagian Khusus Surat Keluar Edit - Metode Upload File -->
+                    <div class="field-edit-keluar-only d-none" id="wrapper_edit_keluar_upload">
+                        <div class="mb-3">
+                            <label for="edit_file_arsip_keluar" class="form-label fw-bold">Ganti Berkas Arsip Surat Keluar (Opsional)</label>
+                            <input type="file" class="form-control" id="edit_file_arsip_keluar" name="file_arsip" accept=".pdf,.jpg,.jpeg,.png">
+                            <small class="text-muted d-block mt-1">Kosongkan jika tidak ingin mengganti file. Maksimal: 10 MB (PDF, JPG, JPEG, PNG)</small>
+                            <div id="edit_current_file_info_keluar" class="mt-2"></div>
+                            <div class="invalid-feedback" id="error_edit_file_arsip_keluar"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit_keterangan_keluar" class="form-label">Keterangan / Catatan Tambahan (Opsional)</label>
+                            <textarea class="form-control" id="edit_keterangan_keluar" name="keterangan" rows="3" placeholder="Catatan tambahan mengenai surat keluar ini..."></textarea>
                         </div>
                     </div>
 
@@ -1048,6 +1141,60 @@ $(document).ready(function() {
         }
     });
 
+    // Toggle Pilihan Metode Surat Keluar pada Form Tambah (Otomatis vs Upload File)
+    function toggleCreateMetodeKeluar(metode) {
+        if (metode === 'upload') {
+            $('#wrapper_create_keluar_otomatis').addClass('d-none');
+            $('#wrapper_create_keluar_upload').removeClass('d-none');
+            $('#info_create_surat_keluar').addClass('d-none');
+            $('#create_file_arsip_keluar').prop('disabled', false);
+            $('#create_keterangan_keluar').prop('disabled', false);
+            $('#create_file_arsip').prop('disabled', true);
+            $('#create_keterangan').prop('disabled', true);
+            $('#wrapper_create_keluar_otomatis').find('input, textarea').prop('disabled', true);
+        } else {
+            $('#wrapper_create_keluar_otomatis').removeClass('d-none');
+            $('#wrapper_create_keluar_upload').addClass('d-none');
+            $('#info_create_surat_keluar').removeClass('d-none');
+            $('#create_file_arsip_keluar').prop('disabled', true);
+            $('#create_keterangan_keluar').prop('disabled', true);
+            $('#create_file_arsip').prop('disabled', true);
+            $('#create_keterangan').prop('disabled', true);
+            $('#wrapper_create_keluar_otomatis').find('input, textarea').prop('disabled', false);
+        }
+    }
+
+    // Toggle Pilihan Metode Surat Keluar pada Form Edit (Otomatis vs Upload File)
+    function toggleEditMetodeKeluar(metode) {
+        if (metode === 'upload') {
+            $('#wrapper_edit_keluar_otomatis').addClass('d-none');
+            $('#wrapper_edit_keluar_upload').removeClass('d-none');
+            $('#info_edit_surat_keluar').addClass('d-none');
+            $('#edit_file_arsip_keluar').prop('disabled', false);
+            $('#edit_keterangan_keluar').prop('disabled', false);
+            $('#edit_file_arsip').prop('disabled', true);
+            $('#edit_keterangan').prop('disabled', true);
+            $('#wrapper_edit_keluar_otomatis').find('input, textarea').prop('disabled', true);
+        } else {
+            $('#wrapper_edit_keluar_otomatis').removeClass('d-none');
+            $('#wrapper_edit_keluar_upload').addClass('d-none');
+            $('#info_edit_surat_keluar').removeClass('d-none');
+            $('#edit_file_arsip_keluar').prop('disabled', true);
+            $('#edit_keterangan_keluar').prop('disabled', true);
+            $('#edit_file_arsip').prop('disabled', true);
+            $('#edit_keterangan').prop('disabled', true);
+            $('#wrapper_edit_keluar_otomatis').find('input, textarea').prop('disabled', false);
+        }
+    }
+
+    // Event listener switch pilihan metode surat keluar
+    $('.create-metode-keluar-radio').on('change', function() {
+        toggleCreateMetodeKeluar($(this).val());
+    });
+    $('.edit-metode-keluar-radio').on('change', function() {
+        toggleEditMetodeKeluar($(this).val());
+    });
+
     // Fungsi toggle UI berdasarkan jenis surat pada Form Tambah
     function toggleCreateJenisForm(jenis) {
         if (jenis === 'Keluar') {
@@ -1055,7 +1202,6 @@ $(document).ready(function() {
             $('.field-keluar-only').removeClass('d-none').show();
             $('#wrapper_create_nomor_masuk').addClass('d-none');
             $('#wrapper_create_nomor_keluar').removeClass('d-none');
-            $('#info_create_surat_keluar').removeClass('d-none');
 
             $('#wrapper_create_tujuan_masuk').hide();
             $('#wrapper_create_tujuan_keluar').removeClass('d-none').show();
@@ -1074,6 +1220,9 @@ $(document).ready(function() {
             $('#create_status_disposisi').removeAttr('required');
             $('#create_file_arsip').val('');
             $('#create_no_agenda').val('');
+
+            let metode = $('input[name="metode_surat_keluar"]:checked', '#formTambahSurat').val() || 'otomatis';
+            toggleCreateMetodeKeluar(metode);
 
             // Nilai default isi, rincian, dan penutup jika masih kosong
             if (!$('#create_isi_surat').val()) {
@@ -1110,6 +1259,12 @@ $(document).ready(function() {
             $('#create_nomor_surat').val($('#create_nomor_surat_input').val());
             $('#info_create_surat_keluar').addClass('d-none');
 
+            $('#create_file_arsip').prop('disabled', false);
+            $('#create_keterangan').prop('disabled', false);
+            $('#create_file_arsip_keluar').prop('disabled', true);
+            $('#create_keterangan_keluar').prop('disabled', true);
+            $('#wrapper_create_keluar_otomatis').find('input, textarea').prop('disabled', true);
+
             $('#wrapper_create_tujuan_masuk').show();
             $('#wrapper_create_tujuan_keluar').addClass('d-none').hide();
             $('#create_tujuan_surat').removeAttr('required');
@@ -1131,7 +1286,6 @@ $(document).ready(function() {
             $('.field-edit-keluar-only').removeClass('d-none').show();
             $('#wrapper_edit_nomor_masuk').addClass('d-none');
             $('#wrapper_edit_nomor_keluar').removeClass('d-none');
-            $('#info_edit_surat_keluar').removeClass('d-none');
 
             $('#wrapper_edit_tujuan_masuk').hide();
             $('#wrapper_edit_tujuan_keluar').removeClass('d-none').show();
@@ -1145,6 +1299,9 @@ $(document).ready(function() {
             $('#edit_file_arsip').val('');
             $('#edit_no_agenda').val('');
             updateEditNomorKeluar();
+
+            let metode = $('input[name="edit_metode_surat_keluar"]:checked', '#formEditSurat').val() || 'otomatis';
+            toggleEditMetodeKeluar(metode);
         } else {
             $('.field-edit-masuk-only').show();
             $('.field-edit-keluar-only').addClass('d-none').hide();
@@ -1152,6 +1309,12 @@ $(document).ready(function() {
             $('#wrapper_edit_nomor_keluar').addClass('d-none');
             $('#edit_nomor_surat').val($('#edit_nomor_surat_input').val());
             $('#info_edit_surat_keluar').addClass('d-none');
+
+            $('#edit_file_arsip').prop('disabled', false);
+            $('#edit_keterangan').prop('disabled', false);
+            $('#edit_file_arsip_keluar').prop('disabled', true);
+            $('#edit_keterangan_keluar').prop('disabled', true);
+            $('#wrapper_edit_keluar_otomatis').find('input, textarea').prop('disabled', true);
 
             $('#wrapper_edit_tujuan_masuk').show();
             $('#wrapper_edit_tujuan_keluar').addClass('d-none').hide();
@@ -1289,6 +1452,8 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
         $('#create_nomor_bulan').val(getBulanRomawi($('#create_tanggal_surat').val()));
 
         let currentTabJenis = $('#filter_jenis_surat').val();
+        $('#create_metode_otomatis').prop('checked', true);
+        toggleCreateMetodeKeluar('otomatis');
         if ($('#create_jenis_keluar').length && (currentTabJenis === 'Keluar' || !$('#create_jenis_masuk').length)) {
             $('#create_jenis_keluar').prop('checked', true);
             toggleCreateJenisForm('Keluar');
@@ -1398,6 +1563,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
         clearErrors(this);
         let btn = $('#btnSubmitTambah');
         let jenis = $('input[name="jenis_surat"]:checked', this).val();
+        let metodeKeluar = $('input[name="metode_surat_keluar"]:checked', this).val() || 'otomatis';
 
         if (jenis === 'Masuk' && !$('#create_tujuan_user_id').val()) {
             $('#create_tujuan_user_id').addClass('is-invalid');
@@ -1405,13 +1571,22 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
             return false;
         }
 
+        if (jenis === 'Keluar' && metodeKeluar === 'upload') {
+            let fileInput = $('#create_file_arsip_keluar')[0];
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                $('#create_file_arsip_keluar').addClass('is-invalid');
+                $('#error_create_file_arsip_keluar').text('File berkas arsip surat keluar wajib diunggah.').show();
+                return false;
+            }
+        }
+
         btn.prop('disabled', true);
 
         let formData = new FormData(this);
 
         try {
-            // Jika jenis surat adalah KELUAR, generate dokumen arsip otomatis
-            if (jenis === 'Keluar') {
+            // Jika jenis surat adalah KELUAR dan metode OTOMATIS, generate dokumen arsip otomatis
+            if (jenis === 'Keluar' && metodeKeluar === 'otomatis') {
                 btn.html('<span class="spinner-border spinner-border-sm me-1"></span> Menghasilkan Surat Resmi...');
                 let nomor = $('#create_nomor_surat').val();
                 let tanggal = $('#create_tanggal_surat').val();
@@ -1446,6 +1621,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                 lastGeneratedData.canvas = canvas;
                 lastGeneratedData.dataUrl = dataUrl;
             } else {
+                lastGeneratedData.canvas = null;
                 btn.html('<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...');
             }
 
@@ -1460,7 +1636,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                     $('#modalTambahSurat').modal('hide');
                     table.ajax.reload(null, false);
 
-                    if (jenis === 'Keluar' && lastGeneratedData.canvas) {
+                    if (jenis === 'Keluar' && metodeKeluar === 'otomatis' && lastGeneratedData.canvas) {
                         lastGeneratedData.cetakUrl = res.cetak_url;
                         $('#hasilSuratPreviewImg').attr('src', lastGeneratedData.dataUrl);
                         $('#btnCetakSuratModal').attr('href', res.cetak_url);
@@ -1482,6 +1658,10 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         $.each(errors, function(key, val) {
                             $('#create_' + key).addClass('is-invalid');
                             $('#error_create_' + key).text(val[0]).show();
+                            if (key === 'file_arsip') {
+                                $('#create_file_arsip_keluar').addClass('is-invalid');
+                                $('#error_create_file_arsip_keluar').text(val[0]).show();
+                            }
                             if (key === 'nomor_surat') {
                                 $('#create_nomor_surat_input, #create_nomor_kode, #create_nomor_urut, #create_nomor_instansi, #create_nomor_bulan').addClass('is-invalid');
                             }
@@ -1501,7 +1681,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal',
-                text: 'Terjadi kesalahan saat membuat dokumen surat keluar.'
+                text: 'Terjadi kesalahan saat memproses data surat.'
             });
         }
     });
@@ -1631,7 +1811,17 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         $('#edit_tempat').val(s.tempat || '');
                         $('#edit_agenda').val(s.agenda || '');
                         $('#edit_penutup').val(s.penutup || '');
+                        $('#edit_keterangan_keluar').val(s.keterangan || '');
                         toggleEditJenisForm('Keluar');
+
+                        let hasOtomatis = (s.isi_surat && s.isi_surat.trim() !== '') || (s.hari_tanggal && s.hari_tanggal.trim() !== '');
+                        if (hasOtomatis) {
+                            $('#edit_metode_otomatis').prop('checked', true);
+                            toggleEditMetodeKeluar('otomatis');
+                        } else {
+                            $('#edit_metode_upload').prop('checked', true);
+                            toggleEditMetodeKeluar('upload');
+                        }
                     } else {
                         $('#edit_jenis_masuk').prop('checked', true);
                         $('#edit_no_agenda').val(s.no_agenda || '');
@@ -1671,16 +1861,20 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                     $('#edit_perihal').val(s.perihal);
                     $('#edit_status_disposisi').val(s.status_disposisi || 'Belum Didisposisikan');
                     $('#edit_file_arsip').val('');
+                    $('#edit_file_arsip_keluar').val('');
 
                     if (res.file_url) {
-                        $('#edit_current_file_info').html(
+                        let fileBadgeHtml = 
                             '<div class="alert alert-secondary py-1 px-2 mb-0 d-flex justify-content-between align-items-center">' +
                             '<span><i class="bi bi-paperclip me-1"></i>Arsip saat ini: <strong>' + res.file_ext.toUpperCase() + '</strong> (' + res.file_size + ')</span>' +
                             '<a href="' + res.download_url + '" class="btn btn-xs btn-outline-primary py-0"><i class="bi bi-download"></i></a>' +
-                            '</div>'
-                        );
+                            '</div>';
+                        $('#edit_current_file_info').html(fileBadgeHtml);
+                        $('#edit_current_file_info_keluar').html(fileBadgeHtml);
                     } else {
-                        $('#edit_current_file_info').html('<small class="text-muted"><i class="bi bi-info-circle me-1"></i>Belum ada file arsip yang diunggah.</small>');
+                        let noFileHtml = '<small class="text-muted"><i class="bi bi-info-circle me-1"></i>Belum ada file arsip yang diunggah.</small>';
+                        $('#edit_current_file_info').html(noFileHtml);
+                        $('#edit_current_file_info_keluar').html(noFileHtml);
                     }
 
                     $('#modalEditSurat').modal('show');
@@ -1703,6 +1897,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
         let id = $('#edit_id').val();
         let btn = $('#btnSubmitEdit');
         let jenis = $('input[name="jenis_surat"]:checked', this).val();
+        let metodeKeluar = $('input[name="edit_metode_surat_keluar"]:checked', this).val() || 'otomatis';
 
         if (jenis === 'Masuk' && !$('#edit_tujuan_user_id').val()) {
             $('#edit_tujuan_user_id').addClass('is-invalid');
@@ -1715,7 +1910,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
         let formData = new FormData(this);
 
         try {
-            if (jenis === 'Keluar') {
+            if (jenis === 'Keluar' && metodeKeluar === 'otomatis') {
                 btn.html('<span class="spinner-border spinner-border-sm me-1"></span> Menghasilkan Ulang Surat...');
                 let nomor = $('#edit_nomor_surat').val();
                 let tanggal = $('#edit_tanggal_surat').val();
@@ -1750,6 +1945,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                 lastGeneratedData.canvas = canvas;
                 lastGeneratedData.dataUrl = dataUrl;
             } else {
+                lastGeneratedData.canvas = null;
                 btn.html('<span class="spinner-border spinner-border-sm me-1"></span> Memperbarui...');
             }
 
@@ -1764,7 +1960,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                     $('#modalEditSurat').modal('hide');
                     table.ajax.reload(null, false);
 
-                    if (jenis === 'Keluar' && lastGeneratedData.canvas) {
+                    if (jenis === 'Keluar' && metodeKeluar === 'otomatis' && lastGeneratedData.canvas) {
                         lastGeneratedData.cetakUrl = res.cetak_url;
                         $('#hasilSuratPreviewImg').attr('src', lastGeneratedData.dataUrl);
                         $('#btnCetakSuratModal').attr('href', res.cetak_url);
@@ -1786,6 +1982,10 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         $.each(errors, function(key, val) {
                             $('#edit_' + key).addClass('is-invalid');
                             $('#error_edit_' + key).text(val[0]).show();
+                            if (key === 'file_arsip') {
+                                $('#edit_file_arsip_keluar').addClass('is-invalid');
+                                $('#error_edit_file_arsip_keluar').text(val[0]).show();
+                            }
                             if (key === 'nomor_surat') {
                                 $('#edit_nomor_surat_input, #edit_nomor_kode, #edit_nomor_urut, #edit_nomor_instansi, #edit_nomor_bulan').addClass('is-invalid');
                             }
@@ -1805,7 +2005,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal',
-                text: 'Terjadi kesalahan saat memproses pembaruan surat keluar.'
+                text: 'Terjadi kesalahan saat memproses pembaruan surat.'
             });
         }
     });

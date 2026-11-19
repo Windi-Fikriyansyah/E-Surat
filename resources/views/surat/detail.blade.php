@@ -227,49 +227,62 @@
                     </table>
 
                     @if ($surat->jenis_surat === 'Keluar')
-                        <!-- Rincian Khusus Surat Keluar -->
-                        <div class="mt-4">
-                            <h6 class="fw-bold text-primary mb-2">
-                                <i class="bi bi-calendar-event me-2"></i>Rincian Kegiatan
-                            </h6>
-                            <div class="p-3 bg-light rounded border small">
-                                <div class="row g-2">
-                                    <div class="col-md-6">
-                                        <strong>Hari/Tanggal:</strong><br>
-                                        {{ $surat->hari_tanggal ?: '-' }}
-                                    </div>
-                                    <div class="col-md-6">
-                                        <strong>Waktu:</strong><br>
-                                        {{ $surat->waktu ?: '-' }}
-                                    </div>
-                                    <div class="col-md-6 mt-2">
-                                        <strong>Tempat:</strong><br>
-                                        {{ $surat->tempat ?: '-' }}
-                                    </div>
-                                    <div class="col-md-6 mt-2">
-                                        <strong>Agenda:</strong><br>
-                                        {{ $surat->agenda ?: '-' }}
+                        @if ($surat->isi_surat || $surat->hari_tanggal || $surat->waktu || $surat->tempat || $surat->agenda)
+                            <!-- Rincian Khusus Surat Keluar (Metode Buat Otomatis) -->
+                            <div class="mt-4">
+                                <h6 class="fw-bold text-primary mb-2">
+                                    <i class="bi bi-calendar-event me-2"></i>Rincian Kegiatan
+                                </h6>
+                                <div class="p-3 bg-light rounded border small">
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <strong>Hari/Tanggal:</strong><br>
+                                            {{ $surat->hari_tanggal ?: '-' }}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Waktu:</strong><br>
+                                            {{ $surat->waktu ?: '-' }}
+                                        </div>
+                                        <div class="col-md-6 mt-2">
+                                            <strong>Tempat:</strong><br>
+                                            {{ $surat->tempat ?: '-' }}
+                                        </div>
+                                        <div class="col-md-6 mt-2">
+                                            <strong>Agenda:</strong><br>
+                                            {{ $surat->agenda ?: '-' }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="mt-3">
-                            <h6 class="fw-bold text-primary mb-2">
-                                <i class="bi bi-chat-left-quote me-2"></i>Isi Pengantar
-                            </h6>
-                            <div class="p-3 bg-light rounded border small" style="white-space: pre-line;">
-                                {{ $surat->isi_surat ?: '-' }}
-                            </div>
-                        </div>
-
-                        @if ($surat->penutup)
                             <div class="mt-3">
                                 <h6 class="fw-bold text-primary mb-2">
-                                    <i class="bi bi-chat-right-text me-2"></i>Penutup
+                                    <i class="bi bi-chat-left-quote me-2"></i>Isi Pengantar
+                                </h6>
+                                <div class="p-3 bg-light rounded border small" style="white-space: pre-line;">
+                                    {{ $surat->isi_surat ?: '-' }}
+                                </div>
+                            </div>
+
+                            @if ($surat->penutup)
+                                <div class="mt-3">
+                                    <h6 class="fw-bold text-primary mb-2">
+                                        <i class="bi bi-chat-right-text me-2"></i>Penutup
+                                    </h6>
+                                    <div class="p-3 bg-light rounded border small text-muted" style="white-space: pre-line;">
+                                        {{ $surat->penutup }}
+                                    </div>
+                                </div>
+                            @endif
+                        @endif
+
+                        @if ($surat->keterangan)
+                            <div class="mt-3">
+                                <h6 class="fw-bold text-primary mb-2">
+                                    <i class="bi bi-info-circle me-2"></i>Catatan / Keterangan
                                 </h6>
                                 <div class="p-3 bg-light rounded border small text-muted" style="white-space: pre-line;">
-                                    {{ $surat->penutup }}
+                                    {{ $surat->keterangan }}
                                 </div>
                             </div>
                         @endif
