@@ -65,6 +65,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/excel', [LaporanController::class, 'exportExcel'])->name('excel');
     });
 
+    // Notifikasi Sistem
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('read');
+        Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('read-all');
+    });
+
     
 });
 

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Notifications\SuratMasukDisposisiNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
@@ -21,8 +24,9 @@ class SuratController extends Controller
         }
 
         $defaultJenis = $request->query('jenis', '');
+        $users = User::where('is_active', true)->orderBy('name')->get();
 
-        return view('surat.index', compact('defaultJenis'));
+        return view('surat.index', compact('defaultJenis', 'users'));
     }
 
     /**
@@ -365,7 +369,8 @@ class SuratController extends Controller
             'jenis_surat' => ['required', Rule::in(['Masuk', 'Keluar'])],
             'nomor_surat' => ['required', 'string', 'max:255', 'unique:surat,nomor_surat'],
             'tanggal_surat' => ['required', 'date'],
-            'tujuan_surat' => ['required', 'string', 'max:255'],
+            'tujuan_surat' => [Rule::requiredIf($request->jenis_surat === 'Keluar'), 'nullable', 'string', 'max:255'],
+            'tujuan_user_id' => [Rule::requiredIf($request->jenis_surat === 'Masuk'), 'nullable', 'exists:users,id'],
             'penerima_surat' => [Rule::requiredIf($request->jenis_surat === 'Keluar'), 'nullable', 'string', 'max:255'],
             'perihal' => ['required', 'string'],
             'keterangan' => ['nullable', 'string'],
@@ -382,7 +387,9 @@ class SuratController extends Controller
             'nomor_surat.unique' => 'Nomor surat sudah terdaftar sebelumnya.',
             'tanggal_surat.required' => 'Tanggal surat wajib diisi.',
             'penerima_surat.required' => 'Penerima surat wajib diisi.',
-            'tujuan_surat.required' => $request->jenis_surat === 'Keluar' ? 'Tujuan surat wajib diisi.' : 'Tujuan / disposisi surat wajib diisi.',
+            'tujuan_surat.required' => 'Tujuan surat wajib diisi untuk surat keluar.',
+            'tujuan_user_id.required' => 'Tujuan / Disposisi kepada pengguna wajib dipilih untuk surat masuk.',
+            'tujuan_user_id.exists' => 'Pengguna yang dipilih tidak terdaftar dalam sistem.',
             'asal_surat.required' => 'Asal surat / pengirim wajib diisi untuk surat masuk.',
             'tanggal_terima.required' => 'Tanggal terima surat wajib diisi untuk surat masuk.',
             'status_disposisi.required' => 'Status disposisi wajib dipilih untuk surat masuk.',
@@ -418,6 +425,19 @@ class SuratController extends Controller
             $noAgenda = $request->filled('no_agenda') ? intval($request->input('no_agenda')) : (($maxAgenda ? intval($maxAgenda) : 0) + 1);
         }
 
+        // Tentukan teks tujuan dan user tujuan
+        $tujuanUserId = null;
+        $tujuanSuratText = $validated['tujuan_surat'] ?? null;
+        $targetUser = null;
+
+        if ($validated['jenis_surat'] === 'Masuk') {
+            $tujuanUserId = $request->input('tujuan_user_id');
+            $targetUser = User::find($tujuanUserId);
+            if ($targetUser) {
+                $tujuanSuratText = $targetUser->name;
+            }
+        }
+
         $id = DB::table('surat')->insertGetId([
             'no_agenda' => $noAgenda,
             'jenis_surat' => $validated['jenis_surat'],
@@ -426,8 +446,9 @@ class SuratController extends Controller
             'tanggal_terima' => $validated['jenis_surat'] === 'Masuk' ? ($validated['tanggal_terima'] ?? now()->toDateString()) : null,
             'asal_surat' => $validated['jenis_surat'] === 'Masuk' ? ($validated['asal_surat'] ?? null) : null,
             'penerima_surat' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('penerima_surat') ?: null) : null,
-            'tujuan_surat' => $validated['tujuan_surat'],
-            'tujuan_disposisi' => $validated['tujuan_surat'],
+            'tujuan_user_id' => $tujuanUserId,
+            'tujuan_surat' => $tujuanSuratText,
+            'tujuan_disposisi' => $tujuanSuratText,
             'perihal' => $validated['perihal'],
             'isi_surat' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('isi_surat') ?: null) : null,
             'hari_tanggal' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('hari_tanggal') ?: null) : null,
@@ -442,6 +463,23 @@ class SuratController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        // Kirim Notifikasi Email dan In-App Notification ke User Tujuan (khusus Surat Masuk)
+        if ($validated['jenis_surat'] === 'Masuk' && $targetUser) {
+            try {
+                $targetUser->notify(new SuratMasukDisposisiNotification([
+                    'id' => $id,
+                    'nomor_surat' => $validated['nomor_surat'],
+                    'no_agenda' => $noAgenda,
+                    'perihal' => $validated['perihal'],
+                    'asal_surat' => $validated['asal_surat'] ?? '-',
+                    'tanggal_surat' => $validated['tanggal_surat'],
+                    'status_disposisi' => $validated['status_disposisi'] ?? 'Belum Didisposisikan',
+                ]));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal mengirim notifikasi surat masuk: ' . $e->getMessage());
+            }
+        }
 
         $label = $validated['jenis_surat'] === 'Keluar' ? 'Surat Keluar' : 'Surat Masuk';
 
@@ -488,7 +526,8 @@ class SuratController extends Controller
             'jenis_surat' => ['required', Rule::in(['Masuk', 'Keluar'])],
             'nomor_surat' => ['required', 'string', 'max:255', Rule::unique('surat', 'nomor_surat')->ignore($id)],
             'tanggal_surat' => ['required', 'date'],
-            'tujuan_surat' => ['required', 'string', 'max:255'],
+            'tujuan_surat' => [Rule::requiredIf($request->jenis_surat === 'Keluar'), 'nullable', 'string', 'max:255'],
+            'tujuan_user_id' => [Rule::requiredIf($request->jenis_surat === 'Masuk'), 'nullable', 'exists:users,id'],
             'penerima_surat' => [Rule::requiredIf($request->jenis_surat === 'Keluar'), 'nullable', 'string', 'max:255'],
             'perihal' => ['required', 'string'],
             'keterangan' => ['nullable', 'string'],
@@ -505,7 +544,9 @@ class SuratController extends Controller
             'nomor_surat.unique' => 'Nomor surat sudah terdaftar sebelumnya.',
             'tanggal_surat.required' => 'Tanggal surat wajib diisi.',
             'penerima_surat.required' => 'Penerima surat wajib diisi.',
-            'tujuan_surat.required' => $request->jenis_surat === 'Keluar' ? 'Tujuan surat wajib diisi.' : 'Tujuan / disposisi surat wajib diisi.',
+            'tujuan_surat.required' => 'Tujuan surat wajib diisi untuk surat keluar.',
+            'tujuan_user_id.required' => 'Tujuan / Disposisi kepada pengguna wajib dipilih untuk surat masuk.',
+            'tujuan_user_id.exists' => 'Pengguna yang dipilih tidak terdaftar dalam sistem.',
             'asal_surat.required' => 'Asal surat / pengirim wajib diisi untuk surat masuk.',
             'tanggal_terima.required' => 'Tanggal terima surat wajib diisi untuk surat masuk.',
             'status_disposisi.required' => 'Status disposisi wajib dipilih untuk surat masuk.',
@@ -555,6 +596,21 @@ class SuratController extends Controller
             $noAgenda = null;
         }
 
+        // Tentukan teks tujuan dan user tujuan
+        $tujuanUserId = $surat->tujuan_user_id;
+        $tujuanSuratText = $validated['tujuan_surat'] ?? $surat->tujuan_surat;
+        $targetUser = null;
+
+        if ($validated['jenis_surat'] === 'Masuk') {
+            $tujuanUserId = $request->input('tujuan_user_id') ?: $surat->tujuan_user_id;
+            $targetUser = User::find($tujuanUserId);
+            if ($targetUser) {
+                $tujuanSuratText = $targetUser->name;
+            }
+        } else {
+            $tujuanUserId = null;
+        }
+
         DB::table('surat')->where('id', $id)->update([
             'no_agenda' => $noAgenda,
             'jenis_surat' => $validated['jenis_surat'],
@@ -563,8 +619,9 @@ class SuratController extends Controller
             'tanggal_terima' => $validated['jenis_surat'] === 'Masuk' ? ($validated['tanggal_terima'] ?? null) : null,
             'asal_surat' => $validated['jenis_surat'] === 'Masuk' ? ($validated['asal_surat'] ?? null) : null,
             'penerima_surat' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('penerima_surat') ?: null) : null,
-            'tujuan_surat' => $validated['tujuan_surat'],
-            'tujuan_disposisi' => $validated['tujuan_surat'],
+            'tujuan_user_id' => $tujuanUserId,
+            'tujuan_surat' => $tujuanSuratText,
+            'tujuan_disposisi' => $tujuanSuratText,
             'perihal' => $validated['perihal'],
             'isi_surat' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('isi_surat') ?: null) : null,
             'hari_tanggal' => $validated['jenis_surat'] === 'Keluar' ? ($request->input('hari_tanggal') ?: null) : null,
@@ -577,6 +634,23 @@ class SuratController extends Controller
             'file_arsip' => $filePath,
             'updated_at' => now(),
         ]);
+
+        // Kirim Notifikasi jika dialihkan ke user disposisi baru
+        if ($validated['jenis_surat'] === 'Masuk' && $targetUser && $surat->tujuan_user_id != $tujuanUserId) {
+            try {
+                $targetUser->notify(new SuratMasukDisposisiNotification([
+                    'id' => $id,
+                    'nomor_surat' => $validated['nomor_surat'],
+                    'no_agenda' => $noAgenda,
+                    'perihal' => $validated['perihal'],
+                    'asal_surat' => $validated['asal_surat'] ?? '-',
+                    'tanggal_surat' => $validated['tanggal_surat'],
+                    'status_disposisi' => $validated['status_disposisi'] ?? 'Belum Didisposisikan',
+                ]));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal mengirim notifikasi surat masuk: ' . $e->getMessage());
+            }
+        }
 
         $label = $validated['jenis_surat'] === 'Keluar' ? 'Surat Keluar' : 'Surat Masuk';
 

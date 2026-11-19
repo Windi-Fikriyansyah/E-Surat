@@ -221,10 +221,23 @@
                             <input type="text" class="form-control" id="create_penerima_surat" name="penerima_surat" placeholder="Contoh: Bapak/Ibu Dewan Guru">
                             <div class="invalid-feedback" id="error_create_penerima_surat"></div>
                         </div>
-                        <!-- Tujuan Surat / Disposisi -->
-                        <div class="col-md-6 mb-3" id="wrapper_create_tujuan">
-                            <label for="create_tujuan_surat" class="form-label" id="label_create_tujuan">Tujuan / Disposisi Kepada <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="create_tujuan_surat" name="tujuan_surat" required placeholder="Contoh: SMK Negeri 1 Sadaniang">
+                        <!-- Khusus Surat Masuk: Tujuan / Disposisi Kepada (Select2) -->
+                        <div class="col-md-6 mb-3 field-masuk-only" id="wrapper_create_tujuan_masuk">
+                            <label for="create_tujuan_user_id" class="form-label fw-bold">Tujuan / Disposisi Kepada <span class="text-danger">*</span></label>
+                            <select class="form-select select2-user" id="create_tujuan_user_id" name="tujuan_user_id" style="width: 100%;">
+                                <option value="" disabled selected>-- Pilih Pejabat / Pengguna Tujuan --</option>
+                                @foreach ($users as $u)
+                                    <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->role }})</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback" id="error_create_tujuan_user_id"></div>
+                            <small class="text-muted small">Notifikasi email & sistem akan dikirimkan kepada pengguna ini.</small>
+                        </div>
+
+                        <!-- Khusus Surat Keluar: Tujuan Surat (Input teks biasa) -->
+                        <div class="col-md-6 mb-3 field-keluar-only d-none" id="wrapper_create_tujuan_keluar">
+                            <label for="create_tujuan_surat" class="form-label fw-bold">Tujuan Surat <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="create_tujuan_surat" name="tujuan_surat" placeholder="Contoh: SMK Negeri 1 Sadaniang">
                             <div class="invalid-feedback" id="error_create_tujuan_surat"></div>
                         </div>
                     </div>
@@ -413,10 +426,22 @@
                             <input type="text" class="form-control" id="edit_penerima_surat" name="penerima_surat" placeholder="Contoh: Bapak/Ibu Dewan Guru">
                             <div class="invalid-feedback" id="error_edit_penerima_surat"></div>
                         </div>
-                        <!-- Tujuan Surat / Disposisi (Edit) -->
-                        <div class="col-md-6 mb-3" id="wrapper_edit_tujuan">
-                            <label for="edit_tujuan_surat" class="form-label" id="label_edit_tujuan">Tujuan / Disposisi <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="edit_tujuan_surat" name="tujuan_surat" required>
+                        <!-- Khusus Surat Masuk: Tujuan / Disposisi Kepada (Select2) (Edit) -->
+                        <div class="col-md-6 mb-3 field-edit-masuk-only" id="wrapper_edit_tujuan_masuk">
+                            <label for="edit_tujuan_user_id" class="form-label fw-bold">Tujuan / Disposisi Kepada <span class="text-danger">*</span></label>
+                            <select class="form-select select2-user" id="edit_tujuan_user_id" name="tujuan_user_id" style="width: 100%;">
+                                <option value="" disabled selected>-- Pilih Pejabat / Pengguna Tujuan --</option>
+                                @foreach ($users as $u)
+                                    <option value="{{ $u->id }}" data-name="{{ $u->name }}">{{ $u->name }} ({{ $u->role }})</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback" id="error_edit_tujuan_user_id"></div>
+                        </div>
+
+                        <!-- Khusus Surat Keluar: Tujuan Surat (Input teks biasa) (Edit) -->
+                        <div class="col-md-6 mb-3 field-edit-keluar-only d-none" id="wrapper_edit_tujuan_keluar">
+                            <label for="edit_tujuan_surat" class="form-label fw-bold">Tujuan Surat <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="edit_tujuan_surat" name="tujuan_surat">
                             <div class="invalid-feedback" id="error_edit_tujuan_surat"></div>
                         </div>
                     </div>
@@ -821,6 +846,37 @@ $(document).ready(function() {
         }
     });
 
+    // Inisialisasi Select2 untuk Pemilihan User Tujuan Disposisi Surat Masuk
+    $('#create_tujuan_user_id').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#modalTambahSurat'),
+        placeholder: '-- Pilih Pejabat / Pengguna Tujuan --',
+        allowClear: true,
+        width: '100%'
+    });
+
+    $('#edit_tujuan_user_id').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#modalEditSurat'),
+        placeholder: '-- Pilih Pejabat / Pengguna Tujuan --',
+        allowClear: true,
+        width: '100%'
+    });
+
+    $('#create_tujuan_user_id').on('change', function() {
+        if ($(this).val()) {
+            $(this).removeClass('is-invalid');
+            $('#error_create_tujuan_user_id').text('').hide();
+        }
+    });
+
+    $('#edit_tujuan_user_id').on('change', function() {
+        if ($(this).val()) {
+            $(this).removeClass('is-invalid');
+            $('#error_edit_tujuan_user_id').text('').hide();
+        }
+    });
+
     let currentJenis = "{{ $defaultJenis }}";
 
     // Variabel penyimpan file hasil generate untuk modal hasil
@@ -996,12 +1052,16 @@ $(document).ready(function() {
     function toggleCreateJenisForm(jenis) {
         if (jenis === 'Keluar') {
             $('.field-masuk-only').hide();
-            $('.field-keluar-only').removeClass('d-none');
+            $('.field-keluar-only').removeClass('d-none').show();
             $('#wrapper_create_nomor_masuk').addClass('d-none');
             $('#wrapper_create_nomor_keluar').removeClass('d-none');
             $('#info_create_surat_keluar').removeClass('d-none');
-            $('#label_create_tujuan').html('Tujuan Surat <span class="text-danger">*</span>');
-            $('#create_tujuan_surat').attr('placeholder', 'Contoh: SMK Negeri 1 Sadaniang');
+
+            $('#wrapper_create_tujuan_masuk').hide();
+            $('#wrapper_create_tujuan_keluar').removeClass('d-none').show();
+            $('#create_tujuan_user_id').removeAttr('required').val('').trigger('change');
+            $('#create_tujuan_surat').attr('required', true);
+
             if (!$('#create_penerima_surat').val()) {
                 $('#create_penerima_surat').val('Bapak/Ibu Dewan Guru');
             }
@@ -1044,13 +1104,16 @@ $(document).ready(function() {
             }
         } else {
             $('.field-masuk-only').show();
-            $('.field-keluar-only').addClass('d-none');
+            $('.field-keluar-only').addClass('d-none').hide();
             $('#wrapper_create_nomor_masuk').removeClass('d-none');
             $('#wrapper_create_nomor_keluar').addClass('d-none');
             $('#create_nomor_surat').val($('#create_nomor_surat_input').val());
             $('#info_create_surat_keluar').addClass('d-none');
-            $('#label_create_tujuan').html('Tujuan / Disposisi Kepada <span class="text-danger">*</span>');
-            $('#create_tujuan_surat').attr('placeholder', 'Contoh: Kepala Dinas / Sekretaris / Kasubag');
+
+            $('#wrapper_create_tujuan_masuk').show();
+            $('#wrapper_create_tujuan_keluar').addClass('d-none').hide();
+            $('#create_tujuan_surat').removeAttr('required');
+
             $('#create_penerima_surat').removeAttr('required');
             $('#create_asal_surat').attr('required', true);
             $('#create_tanggal_terima').attr('required', true);
@@ -1065,12 +1128,16 @@ $(document).ready(function() {
     function toggleEditJenisForm(jenis) {
         if (jenis === 'Keluar') {
             $('.field-edit-masuk-only').hide();
-            $('.field-edit-keluar-only').removeClass('d-none');
+            $('.field-edit-keluar-only').removeClass('d-none').show();
             $('#wrapper_edit_nomor_masuk').addClass('d-none');
             $('#wrapper_edit_nomor_keluar').removeClass('d-none');
             $('#info_edit_surat_keluar').removeClass('d-none');
-            $('#label_edit_tujuan').html('Tujuan Surat <span class="text-danger">*</span>');
-            $('#edit_tujuan_surat').attr('placeholder', 'Contoh: SMK Negeri 1 Sadaniang');
+
+            $('#wrapper_edit_tujuan_masuk').hide();
+            $('#wrapper_edit_tujuan_keluar').removeClass('d-none').show();
+            $('#edit_tujuan_user_id').removeAttr('required').val('').trigger('change');
+            $('#edit_tujuan_surat').attr('required', true);
+
             $('#edit_penerima_surat').attr('required', true);
             $('#edit_asal_surat').removeAttr('required');
             $('#edit_tanggal_terima').removeAttr('required');
@@ -1080,13 +1147,16 @@ $(document).ready(function() {
             updateEditNomorKeluar();
         } else {
             $('.field-edit-masuk-only').show();
-            $('.field-edit-keluar-only').addClass('d-none');
+            $('.field-edit-keluar-only').addClass('d-none').hide();
             $('#wrapper_edit_nomor_masuk').removeClass('d-none');
             $('#wrapper_edit_nomor_keluar').addClass('d-none');
             $('#edit_nomor_surat').val($('#edit_nomor_surat_input').val());
             $('#info_edit_surat_keluar').addClass('d-none');
-            $('#label_edit_tujuan').html('Tujuan / Disposisi <span class="text-danger">*</span>');
-            $('#edit_tujuan_surat').attr('placeholder', '');
+
+            $('#wrapper_edit_tujuan_masuk').show();
+            $('#wrapper_edit_tujuan_keluar').addClass('d-none').hide();
+            $('#edit_tujuan_surat').removeAttr('required');
+
             $('#edit_penerima_surat').removeAttr('required');
             $('#edit_asal_surat').attr('required', true);
             $('#edit_tanggal_terima').attr('required', true);
@@ -1202,13 +1272,14 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
     // Clear error
     function clearErrors(form) {
         $(form).find('.is-invalid').removeClass('is-invalid');
-        $(form).find('.invalid-feedback').text('');
+        $(form).find('.invalid-feedback').text('').hide();
     }
 
     // Modal Tambah: Reset Form
     $('#modalTambahSurat').on('show.bs.modal', function() {
         $('#formTambahSurat')[0].reset();
         clearErrors('#formTambahSurat');
+        $('#create_tujuan_user_id').val('').trigger('change');
 
         $('#create_nomor_urut').val('');
         $('#create_nomor_kode').val('800');
@@ -1328,6 +1399,12 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
         let btn = $('#btnSubmitTambah');
         let jenis = $('input[name="jenis_surat"]:checked', this).val();
 
+        if (jenis === 'Masuk' && !$('#create_tujuan_user_id').val()) {
+            $('#create_tujuan_user_id').addClass('is-invalid');
+            $('#error_create_tujuan_user_id').text('Pejabat / Pengguna Tujuan wajib dipilih.').show();
+            return false;
+        }
+
         btn.prop('disabled', true);
 
         let formData = new FormData(this);
@@ -1404,7 +1481,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         let errors = xhr.responseJSON.errors;
                         $.each(errors, function(key, val) {
                             $('#create_' + key).addClass('is-invalid');
-                            $('#error_create_' + key).text(val[0]);
+                            $('#error_create_' + key).text(val[0]).show();
                             if (key === 'nomor_surat') {
                                 $('#create_nomor_surat_input, #create_nomor_kode, #create_nomor_urut, #create_nomor_instansi, #create_nomor_bulan').addClass('is-invalid');
                             }
@@ -1545,6 +1622,8 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         $('#edit_nomor_instansi').val(parsed.instansi);
                         $('#edit_nomor_bulan').val(parsed.bulan);
                         $('#edit_penerima_surat').val(s.penerima_surat || '');
+                        $('#edit_tujuan_surat').val(s.tujuan_surat || '');
+                        $('#edit_tujuan_user_id').val('').trigger('change');
                         $('#edit_isi_surat').val(s.isi_surat || '');
                         $('#edit_hari_tanggal').val(s.hari_tanggal || '');
                         $('#edit_waktu').val(s.waktu || '');
@@ -1560,13 +1639,34 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         $('#edit_penerima_surat').val('');
                         $('#edit_keterangan').val(s.keterangan || '');
                         toggleEditJenisForm('Masuk');
+
+                        // Set nilai tujuan_user_id pada Select2
+                        if (s.tujuan_user_id) {
+                            $('#edit_tujuan_user_id').val(s.tujuan_user_id).trigger('change');
+                        } else {
+                            let matchedId = '';
+                            let targetName = (s.tujuan_surat || s.tujuan_disposisi || '').trim().toLowerCase();
+                            if (targetName) {
+                                $('#edit_tujuan_user_id option').each(function() {
+                                    let optName = ($(this).data('name') || '').toString().trim().toLowerCase();
+                                    let optText = $(this).text().trim().toLowerCase();
+                                    if (optName && (optName === targetName || optText.includes(targetName) || targetName.includes(optName))) {
+                                        matchedId = $(this).val();
+                                        return false;
+                                    }
+                                });
+                            }
+                            $('#edit_tujuan_user_id').val(matchedId).trigger('change');
+                        }
                     }
 
                     $('#edit_nomor_surat').val(s.nomor_surat);
                     $('#edit_tanggal_surat').val(s.tanggal_surat);
                     $('#edit_tanggal_terima').val(s.tanggal_terima);
                     $('#edit_asal_surat').val(s.asal_surat);
-                    $('#edit_tujuan_surat').val(s.tujuan_surat || s.tujuan_disposisi);
+                    if (s.jenis_surat === 'Keluar') {
+                        $('#edit_tujuan_surat').val(s.tujuan_surat || '');
+                    }
                     $('#edit_perihal').val(s.perihal);
                     $('#edit_status_disposisi').val(s.status_disposisi || 'Belum Didisposisikan');
                     $('#edit_file_arsip').val('');
@@ -1602,6 +1702,12 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
         let id = $('#edit_id').val();
         let btn = $('#btnSubmitEdit');
         let jenis = $('input[name="jenis_surat"]:checked', this).val();
+
+        if (jenis === 'Masuk' && !$('#edit_tujuan_user_id').val()) {
+            $('#edit_tujuan_user_id').addClass('is-invalid');
+            $('#error_edit_tujuan_user_id').text('Pejabat / Pengguna Tujuan wajib dipilih.').show();
+            return false;
+        }
 
         btn.prop('disabled', true);
 
@@ -1678,7 +1784,7 @@ Agenda       : Rapat Persiapan dan Koordinasi Pelaksanaan Kegiatan.`;
                         let errors = xhr.responseJSON.errors;
                         $.each(errors, function(key, val) {
                             $('#edit_' + key).addClass('is-invalid');
-                            $('#error_edit_' + key).text(val[0]);
+                            $('#error_edit_' + key).text(val[0]).show();
                             if (key === 'nomor_surat') {
                                 $('#edit_nomor_surat_input, #edit_nomor_kode, #edit_nomor_urut, #edit_nomor_instansi, #edit_nomor_bulan').addClass('is-invalid');
                             }
